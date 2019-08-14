@@ -2,6 +2,7 @@ package com.mitrais.userservice.services;
 
 import com.mitrais.userservice.models.Role;
 import com.mitrais.userservice.models.User;
+import com.mitrais.userservice.repositories.MessageRepository;
 import com.mitrais.userservice.repositories.RoleRepository;
 import com.mitrais.userservice.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setEnabled(true);
+        boolean isEnabled = false;
+        if (user.getId() == null || user.getId().isEmpty()) {
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        } else {
+            isEnabled = user.isEnabled();
+        }
+        user.setEnabled(isEnabled);
         Set<Role> roles = new HashSet<>();
         for (Role role : user.getRoles()) {
             roles.add(roleRepository.findByRole(role.getRole()));
         }
         user.setRoles(roles);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        userRepository.delete(user);
+    }
+
+    @Override
+    public boolean isOldPasswordValid(String encryptedPassword, String oldPassword) {
+        return bCryptPasswordEncoder.matches(oldPassword, encryptedPassword);
+    }
+
+    @Override
+    public void changeUserPassword(User user, String password) {
+        user.setPassword(bCryptPasswordEncoder.encode(password));
         userRepository.save(user);
     }
 
@@ -53,7 +75,7 @@ public class UserServiceImpl implements UserService {
             List<GrantedAuthority> authorities = getUserAuthority(user.getRoles());
             return buildUserForAuthentication(user, authorities);
         } else {
-            throw new UsernameNotFoundException("username not found");
+            throw new UsernameNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
         }
     }
 
@@ -63,8 +85,7 @@ public class UserServiceImpl implements UserService {
             roles.add(new SimpleGrantedAuthority(role.getRole()));
         });
 
-        List<GrantedAuthority> grantedAuthorities = new ArrayList<>(roles);
-        return grantedAuthorities;
+        return new ArrayList<>(roles);
     }
 
     private UserDetails buildUserForAuthentication(User user, List<GrantedAuthority> authorities) {

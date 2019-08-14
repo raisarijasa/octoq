@@ -7,4 +7,10 @@ public interface UserService extends UserDetailsService {
     User findUserByEmail(String email);
 
     void saveUser(User user);
+
+    void deleteUser(User user);
+
+    boolean isOldPasswordValid(String encryptedPassword, String oldPassword);
+
+    void changeUserPassword(User user, String password);
 }

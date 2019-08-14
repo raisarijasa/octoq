@@ -1,6 +1,7 @@
 package com.mitrais.userservice.configs;
 
 import com.mitrais.userservice.models.Role;
+import com.mitrais.userservice.models.User;
 import com.mitrais.userservice.services.UserServiceImpl;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Component
@@ -35,8 +37,14 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String email, Set<Role> roles) {
-        Claims claims = Jwts.claims().setSubject(email);
+    public String createToken(User user) {
+        Claims claims = Jwts.claims();
+        claims.put("email", user.getEmail());
+        claims.put("fullname", user.getFullname());
+        Set<String> roles = new HashSet<>();
+        for (Role role : user.getRoles()) {
+            roles.add(role.getRole());
+        }
         claims.put("roles", roles);
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -54,13 +62,13 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("email").toString();
     }
 
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader(HEADER);
         if (bearerToken != null && bearerToken.startsWith(BEARER + " ")) {
-            return bearerToken.substring(BEARER.length() + 1, bearerToken.length());
+            return bearerToken.substring(BEARER.length() + 1);
         }
         return null;
     }
