@@ -3,6 +3,7 @@ package com.mitrais.questionservice.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -12,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tbl_question")
+@Table(name = "question")
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,6 +25,6 @@ public class Question {
     private Date modifyDate;
     private String status;
 
-    @OneToMany(mappedBy = "tbl_question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Question> answers;
 }
