@@ -1,9 +1,9 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.models.Response;
-
-import java.util.List;
-
+/**
+ * Base Controller
+ * @param <T> generic object
+ */
 public interface BaseController<T> {
-    Response<T> getResponse(boolean error, String code, String message, List<T> data);
+
 }
