@@ -1,5 +1,8 @@
 package com.mitrais.questionservice.exceptions.model;
 
+/**
+ * Data not found exception
+ */
 public class DataNotFoundException extends RuntimeException {
     public DataNotFoundException() {
         super();

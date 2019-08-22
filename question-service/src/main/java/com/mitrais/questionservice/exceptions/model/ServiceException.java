@@ -1,5 +1,8 @@
 package com.mitrais.questionservice.exceptions.model;
 
+/**
+ * Service exception
+ */
 public class ServiceException extends RuntimeException {
     public ServiceException() {
         super();

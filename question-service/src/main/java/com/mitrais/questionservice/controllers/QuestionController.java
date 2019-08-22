@@ -1,112 +1,104 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.models.Question;
-import com.mitrais.questionservice.models.Response;
-import com.mitrais.questionservice.services.QuestionService;
+import com.mitrais.questionservice.dto.QuestionDto;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.validation.Valid;
 
-import static org.springframework.http.ResponseEntity.ok;
-
+/**
+ * Question controller
+ */
 @RestController
 @RequestMapping("/api")
-public class QuestionController implements BaseController<Question> {
+public class QuestionController implements BaseController<Post> {
+    private PostService postService;
 
+    /**
+     * Question controller constructor
+     *
+     * @param postService service of question
+     */
     @Autowired
-    private QuestionService questionService;
-
-    @PostMapping("/question")
-    public ResponseEntity createQuestion(@RequestBody Question question) {
-        if (question.getId() != null) {
-            question.setId(null);
-        }
-        question.setCreatedDate(new Date());
-        question.setModifyDate(new Date());
-        questionService.save(question);
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new question has been created successfully",
-                new ArrayList<>()
-        ));
+    public QuestionController(PostService postService) {
+        this.postService = postService;
     }
 
-    @PutMapping("/question")
-    public ResponseEntity updateQuestion(@RequestBody Question question) {
-        if (question.getId() == null || question.getId() == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Question Not Found");
-        }
-        question.setModifyDate(new Date());
-        questionService.save(question);
-        return ok(getResponse(
-                false,
-                "00002",
-                "The question has been updated successfully",
-                new ArrayList<>()
-        ));
-    }
-
+    /**
+     * get question by Id
+     *
+     * @param id id of the question
+     * @return response entity object
+     */
     @GetMapping("/question/{id}")
     public ResponseEntity getQuestionById(@PathVariable Long id) {
         if (id == null || id == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question ID should not be null or 0");
         }
-        Question question = questionService.findDataById(id);
-        if (question == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Question Not Found");
-        }
-        List<Question> questions = new ArrayList<>();
-        questions.add(question);
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                questions
-        ));
+
+        return postService.getQuestionById(id);
     }
 
+    /**
+     * retrieve questions
+     *
+     * @return response entity object
+     */
     @GetMapping("/question")
     public ResponseEntity getQuestions() {
-        List<Question> questions = questionService.findAll();
-        if (questions == null || questions.size() < 1) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Question Not Found");
-        }
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                questions
-        ));
+        return postService.getQuestions();
     }
 
+    /**
+     * create question
+     *
+     * @param body type QuestionDto
+     * @return response entity object
+     */
+    @PostMapping("/question")
+    public ResponseEntity createQuestion(@Valid @RequestBody QuestionDto body) {
+        return postService.createQuestion(body);
+    }
+
+    /**
+     * update question
+     *
+     * @param body type QuestionDto
+     * @return response entity object
+     */
+    @PutMapping("/question")
+    public ResponseEntity updateQuestion(@Valid @RequestBody QuestionDto body) {
+        return postService.updateQuestion(body);
+    }
+
+    /**
+     * delete question by id
+     *
+     * @param id of question
+     * @return response entity object
+     */
     @DeleteMapping("/question/{id}")
     public ResponseEntity deleteQuestionById(@PathVariable Long id) {
         if (id == null || id == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+            throw new ServiceException("Question ID should not be null or 0");
         }
-        questionService.deleteById(id);
-        return ok(getResponse(
-                false,
-                "00004",
-                "Question has been deleted successfully",
-                new ArrayList<>()
-        ));
+        return postService.deleteQuestionById(id);
     }
 
-    @Override
-    public Response<Question> getResponse(boolean error, String code, String message, List<Question> data) {
-        Response<Question> response = new Response<>();
-        response.setError(error);
-        response.setCode(code);
-        response.setMessage(message);
-        response.setData(data);
-        return response;
+    /**
+     * change question status
+     *
+     * @param body type QuestionDto
+     * @return
+     */
+    @PostMapping("/question/change_status")
+    public ResponseEntity changeStatus(@RequestBody QuestionDto body) {
+        return postService.changeStatus(body);
     }
 }
