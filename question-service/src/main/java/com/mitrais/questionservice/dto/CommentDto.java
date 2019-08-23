@@ -8,11 +8,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class CommentDto {
     private Long id;
-    @NotNull(message = "Post ID is mandatory")
+    @NotNull(message = "{postId.notnull}")
     private Long postId;
-    @NotNull(message = "User ID is mandatory")
+    @NotNull(message = "{userId.notnull}")
     private String userId;
-    @NotNull(message = "Description is mandatory")
+    @NotNull(message = "{description.notnull}")
     private String description;
     private Status status;
 }

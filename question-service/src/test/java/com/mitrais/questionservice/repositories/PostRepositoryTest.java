@@ -1,6 +1,8 @@
 package com.mitrais.questionservice.repositories;
 
 import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.models.Status;
+import com.mitrais.questionservice.models.Type;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,19 +25,34 @@ public class PostRepositoryTest {
     @Autowired
     private PostRepository repository;
 
-    private Post sampleData;
-    private Post sampleAnswer;
+    private Post sampleData, sampleDataBlocked, sampleAnswer;
 
     @Before
     public void init() {
-        sampleData = new Post();
-        sampleData.setTitle("Title 1");
-        sampleAnswer = new Post();
-        sampleAnswer.setTitle("Answer 1");
+        sampleData = new Post()
+                .setTitle("Title 1")
+                .setType(Type.QUESTION)
+                .setStatus(Status.APPROVED)
+                .setAnswers(new HashSet<>())
+                .setComments(new HashSet<>())
+                .setRates(new HashSet<>());
+        sampleDataBlocked = new Post()
+                .setTitle("Title 1")
+                .setType(Type.QUESTION)
+                .setStatus(Status.BLOCKED)
+                .setAnswers(new HashSet<>())
+                .setComments(new HashSet<>())
+                .setRates(new HashSet<>());
+        sampleAnswer = new Post()
+                .setTitle("Answer 1")
+                .setType(Type.ANSWER)
+                .setAnswers(new HashSet<>())
+                .setComments(new HashSet<>())
+                .setRates(new HashSet<>());
     }
 
     @Test
-    public void testFindByIdReturnSuccess() {
+    public void testFindById_ReturnSuccess() {
         repository.save(sampleData);
         Optional<Post> optPost = repository.findById(sampleData.getId());
         System.out.println("Test Data " + sampleData);
@@ -48,7 +65,7 @@ public class PostRepositoryTest {
     }
 
     @Test
-    public void testFindAllReturnSuccess() {
+    public void testFindAll_ReturnSuccess() {
         repository.save(sampleData);
         List<Post> posts = repository.findAll();
         System.out.println("Test Data " + sampleData);
@@ -61,13 +78,23 @@ public class PostRepositoryTest {
     }
 
     @Test
-    public void testCreateQuestionSuccess() {
+    public void testFindByTypeAndStatus_ReturnSuccess() {
+        repository.save(sampleData);
+        repository.save(sampleDataBlocked);
+        List<Post> posts = repository.findAll();
+        List<Post> postValid = repository.findByTypeAndStatus(Type.QUESTION, Status.APPROVED);
+        Assert.assertThat(postValid.size(), is(1));
+        Assert.assertNotEquals(posts.size(), postValid);
+    }
+
+    @Test
+    public void testCreateQuestion_ReturnSuccess() {
         repository.save(sampleData);
         Assert.assertTrue(repository.existsById(sampleData.getId()));
     }
 
     @Test
-    public void testUpdateQuestionSuccess() {
+    public void testUpdateQuestion_ReturnSuccess() {
         repository.save(sampleData);
         System.out.println("Test Data " + sampleData);
         Optional<Post> updateData = repository.findById(sampleData.getId());
@@ -83,54 +110,50 @@ public class PostRepositoryTest {
     }
 
     @Test
-    public void testDeleteByIdSuccess() {
+    public void testDeleteById_ReturnSuccess() {
         repository.save(sampleData);
         repository.deleteById(sampleData.getId());
         Assert.assertFalse(repository.existsById(sampleData.getId()));
     }
 
-    public void testDeleteAnswerById() {
-        Post answer = new Post();
-        answer.setTitle("Answer 1");
+    public void testDeleteAnswerById_ReturnSuccess() {
         Set<Post> answers = new HashSet<>();
-        answers.add(answer);
+        answers.add(sampleAnswer);
         sampleData.setAnswers(answers);
         repository.save(sampleData);
     }
 
     @Test
-    public void testCreateAnswerShouldReturnSuccess() {
-        Post answer = new Post();
-        answer.setTitle("test 1");
-        Post question = new Post();
-        Set<Post> answers = new HashSet<>();
-        answers.add(answer);
-        question.setAnswers(answers);
-        repository.save(question);
-
-        Optional<Post> optQuestion = repository.findById(question.getId());
+    public void testCreateAnswerShould_ReturnSuccess() {
+        repository.save(sampleData);
+        Optional<Post> optQuestion = repository.findById(sampleData.getId());
         if (optQuestion.isPresent()) {
-            System.out.println("Test123" + optQuestion.get().getAnswers());
-            Assert.assertThat(optQuestion.get().getAnswers().size(), is(1));
-            System.out.println("Test123" + optQuestion.get().getAnswers());
+            Set<Post> answers = new HashSet<>();
+            answers.add(sampleAnswer);
+            sampleData.setAnswers(answers);
+            repository.save(sampleAnswer);
+        }
+
+        Optional<Post> optResult = repository.findById(sampleData.getId());
+        if (optResult.isPresent()) {
+            System.out.println("Test123" + optResult.get().getAnswers());
+            Assert.assertThat(optResult.get().getAnswers().size(), is(1));
+            System.out.println("Test123" + optResult.get().getAnswers());
         } else {
             Assert.fail("Fail");
         }
-
     }
 
     @Test
-    public void testCreateAnswerShouldReturnSuccessGetOne() {
-        Post answer = new Post();
-        answer.setTitle("test 1");
-        Post question = new Post();
+    public void testCreateAnswerShould_ReturnSuccessGetOne() {
+        repository.save(sampleData);
+        Post post = repository.getOne(sampleData.getId());
         Set<Post> answers = new HashSet<>();
-        answers.add(answer);
-        question.setAnswers(answers);
-        repository.save(question);
+        answers.add(sampleAnswer);
+        post.setAnswers(answers);
+        repository.save(sampleAnswer);
 
-        Optional<Post> optQuestion = repository.findById(3L);
-//        System.out.println(optQuestion.get());
-
+        Post question = repository.getOne(sampleData.getId());
+        Assert.assertThat(question.getAnswers().size(), is(1));
     }
 }

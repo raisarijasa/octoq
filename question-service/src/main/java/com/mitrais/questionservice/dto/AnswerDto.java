@@ -7,10 +7,10 @@ import javax.validation.constraints.NotNull;
 @Data
 public class AnswerDto {
     private Long id;
-    @NotNull(message = "Question ID is mandatory")
+    @NotNull(message = "{questionId.notnull}")
     private Long questionId;
-    @NotNull(message = "User ID is mandatory")
+    @NotNull(message = "{userId.notnull}")
     private String userId;
-    @NotNull(message = "Description is mandatory")
+    @NotNull(message = "{description.notnull}")
     private String description;
 }

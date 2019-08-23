@@ -8,11 +8,11 @@ import javax.validation.constraints.NotNull;
 @Data
 public class QuestionDto {
     private Long id;
-    @NotNull(message = "User ID is mandatory")
+    @NotNull(message = "{userId.notnull}")
     private String userId;
-    @NotNull(message = "Title is mandatory")
+    @NotNull(message = "{title.notnull}")
     private String title;
-    @NotNull(message = "Description is mandatory")
+    @NotNull(message = "{description.notnull}")
     private String description;
     private Status status;
 }

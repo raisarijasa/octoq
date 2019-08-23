@@ -6,9 +6,9 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class RateDto {
-    @NotNull(message = "Post ID is mandatory")
+    @NotNull(message = "{postId.notnull}")
     private Long postId;
-    @NotNull(message = "User ID is mandatory")
+    @NotNull(message = "{userId.notnull}")
     private String userId;
     private int rating;
 }
