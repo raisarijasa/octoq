@@ -1,6 +1,9 @@
 package com.mitrais.questionservice.repositories;
 
-import com.mitrais.questionservice.models.*;
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.models.Rate;
+import com.mitrais.questionservice.models.Status;
+import com.mitrais.questionservice.models.Type;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,19 +86,12 @@ public class RateRepositoryTest {
     }
 
     @Test
-    public void testUpdateQuestion_ReturnSuccess() {
+    public void testUpdateRate_ReturnSuccess() {
         rateRepo.save(sampleRate);
-        System.out.println("Test Data " + sampleRate);
-        Optional<Rate> updateData = rateRepo.findById(sampleRate.getUserId());
-        if (updateData.isPresent()) {
-            updateData.get().setRating(0);
-            rateRepo.save(updateData.get());
-            Rate dbData = rateRepo.getOne(sampleRate.getUserId());
-            System.out.println("Db Data " + dbData);
-            Assert.assertTrue(dbData.getRating() != sampleRate.getRating());
-        } else {
-            Assert.fail("Data not found");
-        }
+        sampleRate.setRating(0);
+        rateRepo.save(sampleRate);
+        Assert.assertEquals(sampleRate.getRating(), 0);
+        Assert.assertNotEquals(sampleRate.getRating(), 1);
     }
 
     @Test

@@ -6,18 +6,17 @@ import com.mitrais.questionservice.models.Rate;
 import com.mitrais.questionservice.repositories.PostRepository;
 import com.mitrais.questionservice.repositories.RateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
-import static org.springframework.http.ResponseEntity.ok;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Rate Service
  */
 @Service
-public class RateServiceImpl extends BaseServiceImpl<Rate> implements RateService {
+public class RateServiceImpl implements RateService {
     private RateRepository rateRepo;
     private PostRepository postRepo;
 
@@ -67,11 +66,10 @@ public class RateServiceImpl extends BaseServiceImpl<Rate> implements RateServic
      * create rate
      *
      * @param body RateDto
-     * @return response entity object
      */
     @Override
-    public ResponseEntity createRate(RateDto body) {
-        postRepo.findById(body.getPostId())
+    public void createRate(RateDto body, Long postId) {
+        postRepo.findById(postId)
                 .map(question -> {
                     Set<Rate> rates = question.getRates();
                     Rate rate = new Rate()
@@ -82,33 +80,19 @@ public class RateServiceImpl extends BaseServiceImpl<Rate> implements RateServic
                     rates.add(rate);
                     save(rate);
                     return question;
-                }).orElseThrow(() -> new DataNotFoundException("Question not found"));
-
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new rate has been created successfully",
-                new ArrayList<>()
-        ));
+                }).orElseThrow(() -> new DataNotFoundException("Data not found"));
     }
 
     /**
      * delete rate
      *
-     * @param rateId of rate
-     * @return response entity object
+     * @param userId of rate
      */
     @Override
-    public ResponseEntity deleteRate(String rateId) {
-        Optional<Rate> optRate = findById(rateId);
+    public void deleteRate(String userId) {
+        Optional<Rate> optRate = findById(userId);
         if (optRate.isPresent()) {
-            deleteById(rateId);
-            return ok(getResponse(
-                    false,
-                    "00004",
-                    "Rate has been deleted successfully",
-                    new ArrayList<>()
-            ));
+            deleteById(userId);
         } else {
             throw new DataNotFoundException("Rate Not Found");
         }

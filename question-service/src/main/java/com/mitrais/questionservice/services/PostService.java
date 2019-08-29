@@ -3,7 +3,8 @@ package com.mitrais.questionservice.services;
 import com.mitrais.questionservice.dto.AnswerDto;
 import com.mitrais.questionservice.dto.QuestionDto;
 import com.mitrais.questionservice.models.Post;
-import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 /**
  * Post Service
@@ -14,79 +15,72 @@ public interface PostService extends BaseService<Post> {
      * Get question by id
      *
      * @param id of question
-     * @return response entity object
+     * @return question
      */
-    ResponseEntity getQuestionById(Long id);
+    QuestionDto getQuestionById(Long id);
 
     /**
      * get questions
      *
-     * @return response entity
+     * @return list of question
      */
-    ResponseEntity getQuestions();
+    List<QuestionDto> getQuestions();
 
     /**
      * create new question
      *
      * @param body type QuestionDto
-     * @return response entity object
      */
-    ResponseEntity createQuestion(QuestionDto body);
+    void createQuestion(QuestionDto body);
 
     /**
      * update question
      *
      * @param body QuestionDto
-     * @return response entity
      */
-    ResponseEntity updateQuestion(QuestionDto body);
+    void updateQuestion(QuestionDto body);
 
     /**
      * Delete question by id
      *
      * @param id of question
-     * @return response entity
      */
-    ResponseEntity deleteQuestionById(Long id);
+    void deleteQuestionById(Long id);
 
     /**
      * change question status
      *
      * @param body QuestionDto
-     * @return response entity object
      */
-    ResponseEntity changeStatus(QuestionDto body);
+    void changeStatus(QuestionDto body);
 
     /**
      * get answer by id
      *
      * @param id of answer
-     * @return response entity object
+     * @return answer dto object
      */
-    ResponseEntity getAnswerById(Long id);
+    AnswerDto getAnswerById(Long id);
 
     /**
      * create new answer
      *
      * @param body AnswerDto
-     * @return response entity
      */
-    ResponseEntity createAnswer(AnswerDto body);
+    void createAnswer(AnswerDto body, Long questionId);
 
     /**
      * update answer
      *
      * @param body AnswerDto
-     * @return response entity
      */
-    ResponseEntity updateAnswer(AnswerDto body);
+    void updateAnswer(AnswerDto body);
 
     /**
      * delete answer by id
      *
      * @param questionId of question
      * @param answerId   of answer
-     * @return response entity object
      */
-    ResponseEntity deleteAnswer(Long questionId, Long answerId);
+    void deleteAnswer(Long questionId, Long answerId);
 }

@@ -2,17 +2,17 @@ package com.mitrais.questionservice.dto;
 
 import com.mitrais.questionservice.models.Status;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Data
+@NoArgsConstructor
 public class CommentDto {
     private Long id;
-    @NotNull(message = "{postId.notnull}")
-    private Long postId;
-    @NotNull(message = "{userId.notnull}")
     private String userId;
-    @NotNull(message = "{description.notnull}")
     private String description;
+    private Date createdDate;
+    private Date modifiedDate;
     private Status status;
 }

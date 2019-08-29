@@ -51,7 +51,7 @@ public class CommentRepositoryTest {
             comments.add(sampleComment);
             samplePost.setComments(comments);
             commentRepo.save(sampleComment);
-            Assert.assertTrue(commentRepo.existsById(sampleComment.getId()));
+            Assert.assertNotNull(sampleComment.getId());
         } else {
             Assert.fail("Fail");
         }
@@ -87,16 +87,9 @@ public class CommentRepositoryTest {
     public void testUpdateQuestion_ReturnSuccess() {
         commentRepo.save(sampleComment);
         System.out.println("Test Data " + sampleComment);
-        Optional<Comment> updateData = commentRepo.findById(sampleComment.getId());
-        if (updateData.isPresent()) {
-            updateData.get().setDescription("Comment 2");
-            commentRepo.save(updateData.get());
-            Comment dbData = commentRepo.getOne(sampleComment.getId());
-            System.out.println("Db Data " + dbData);
-            Assert.assertTrue(dbData.getDescription().equalsIgnoreCase("Comment 2"));
-        } else {
-            Assert.fail("Data not found");
-        }
+        sampleComment.setDescription("Comment 2");
+        commentRepo.save(sampleComment);
+        Assert.assertEquals(sampleComment.getDescription(), "Comment 2");
     }
 
     @Test

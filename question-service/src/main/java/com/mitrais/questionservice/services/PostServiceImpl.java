@@ -3,25 +3,25 @@ package com.mitrais.questionservice.services;
 import com.mitrais.questionservice.dto.AnswerDto;
 import com.mitrais.questionservice.dto.QuestionDto;
 import com.mitrais.questionservice.exceptions.model.DataNotFoundException;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
 import com.mitrais.questionservice.models.Post;
 import com.mitrais.questionservice.models.Status;
 import com.mitrais.questionservice.models.Type;
 import com.mitrais.questionservice.repositories.PostRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
-import static org.springframework.http.ResponseEntity.ok;
-
 /**
  * Post service
  */
 @Service
-public class PostServiceImpl extends BaseServiceImpl<Post> implements PostService {
+public class PostServiceImpl implements PostService {
     private PostRepository postRepo;
 
     /**
@@ -93,20 +93,15 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * @return response entity object
      */
     @Override
-    public ResponseEntity getQuestionById(Long id) {
+    public QuestionDto getQuestionById(Long id) {
         if (id == null || id == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
         }
         Optional<Post> optPost = findById(id);
         if (optPost.isPresent()) {
-            List<Post> posts = new ArrayList<>();
-            posts.add(optPost.get());
-            return ok(getResponse(
-                    false,
-                    "00003",
-                    "Retrieve data success",
-                    posts
-            ));
+            QuestionDto dto = new QuestionDto();
+            BeanUtils.copyProperties(optPost.get(), dto);
+            return dto;
         } else {
             throw new DataNotFoundException("Question not found");
         }
@@ -118,14 +113,16 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * @return response entity object
      */
     @Override
-    public ResponseEntity getQuestions() {
+    public List<QuestionDto> getQuestions() {
         List<Post> questions = findAll();
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                questions
-        ));
+        List<QuestionDto> questionDtos = new ArrayList<>();
+        QuestionDto dto;
+        for (Post post : questions) {
+            dto = new QuestionDto();
+            BeanUtils.copyProperties(post, dto, "answers");
+            questionDtos.add(dto);
+        }
+        return questionDtos;
     }
 
     /**
@@ -135,7 +132,7 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * @return response entity object
      */
     @Override
-    public ResponseEntity createQuestion(QuestionDto body) {
+    public void createQuestion(QuestionDto body) {
         Post post = new Post().setUserId(body.getUserId())
                 .setTitle(body.getTitle())
                 .setDescription(body.getDescription())
@@ -143,13 +140,12 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
                 .setStatus(Status.APPROVED)
                 .setCreatedDate(new Date())
                 .setAnswers(null);
-        postRepo.save(post);
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new question has been created successfully",
-                new ArrayList<>()
-        ));
+        try {
+            postRepo.save(post);
+        } catch (DataIntegrityViolationException e) {
+            throw new ServiceException("Question with id " + body.getId() + " already exist.");
+        }
+
     }
 
     /**
@@ -159,7 +155,7 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * @return response entity
      */
     @Override
-    public ResponseEntity updateQuestion(QuestionDto body) {
+    public void updateQuestion(QuestionDto body) {
         Optional<Post> optPost = findById(body.getId());
         if (optPost.isPresent()) {
             Post post = optPost.get()
@@ -167,12 +163,6 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
                     .setDescription(body.getDescription())
                     .setModifiedDate(new Date());
             postRepo.save(post);
-            return ok(getResponse(
-                    false,
-                    "00002",
-                    "The question has been updated successfully",
-                    new ArrayList<>()
-            ));
         } else {
             throw new DataNotFoundException("Question Not Found");
         }
@@ -185,14 +175,8 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * @return response entity object
      */
     @Override
-    public ResponseEntity deleteQuestionById(Long id) {
+    public void deleteQuestionById(Long id) {
         deleteById(id);
-        return ok(getResponse(
-                false,
-                "00004",
-                "Question has been deleted successfully",
-                new ArrayList<>()
-        ));
     }
 
     /**
@@ -202,17 +186,11 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * @return response entity
      */
     @Override
-    public ResponseEntity changeStatus(QuestionDto body) {
+    public void changeStatus(QuestionDto body) {
         Optional<Post> optPost = findById(body.getId());
         if (optPost.isPresent()) {
             optPost.get().setStatus(body.getStatus());
             save(optPost.get());
-            return ok(getResponse(
-                    false,
-                    "00002",
-                    "The question has been updated successfully",
-                    new ArrayList<>()
-            ));
         } else {
             throw new DataNotFoundException("Question Not Found");
         }
@@ -222,30 +200,28 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      * get answer by Id
      *
      * @param id of answer
-     * @return response entity
+     * @return Answer Dto
      */
     @Override
-    public ResponseEntity getAnswerById(Long id) {
-        List<Post> answers = new ArrayList<>();
+    public AnswerDto getAnswerById(Long id) {
+        AnswerDto dto = new AnswerDto();
         Optional<Post> optQuestion = findById(id);
-        optQuestion.ifPresent(answers::add);
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                answers
-        ));
+        if (optQuestion.isPresent()) {
+            BeanUtils.copyProperties(optQuestion.get(), dto);
+            return dto;
+        } else {
+            throw new DataNotFoundException("Answer Not Found");
+        }
     }
 
     /**
      * create new answer
      *
      * @param body AnswerDto
-     * @return response entity object
      */
     @Override
-    public ResponseEntity createAnswer(AnswerDto body) {
-        findById(body.getQuestionId())
+    public void createAnswer(AnswerDto body, Long questionId) {
+        findById(questionId)
                 .map(question -> {
                     Set<Post> answers = question.getAnswers();
                     Post answer = new Post()
@@ -260,28 +236,15 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
                     save(answer);
                     return question;
                 }).orElseThrow(() -> new DataNotFoundException("Question not found"));
-
-
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new answer has been created successfully",
-                new ArrayList<>()
-        ));
     }
 
     /**
      * update answer
      *
      * @param body AnswerDto
-     * @return response entity object
      */
     @Override
-    public ResponseEntity updateAnswer(AnswerDto body) {
-        if (!existsById(body.getQuestionId())) {
-            throw new DataNotFoundException("Question not found!");
-        }
-
+    public void updateAnswer(AnswerDto body) {
         findById(body.getId())
                 .map(answer -> {
                     answer.setDescription(body.getDescription())
@@ -289,13 +252,6 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
                     save(answer);
                     return answer;
                 }).orElseThrow(() -> new DataNotFoundException("Answer not found!"));
-
-        return ok(getResponse(
-                false,
-                "00002",
-                "The answer has been updated successfully",
-                new ArrayList<>()
-        ));
     }
 
     /**
@@ -303,19 +259,12 @@ public class PostServiceImpl extends BaseServiceImpl<Post> implements PostServic
      *
      * @param questionId of question
      * @param answerId   of answer
-     * @return response entity
      */
     @Override
-    public ResponseEntity deleteAnswer(Long questionId, Long answerId) {
+    public void deleteAnswer(Long questionId, Long answerId) {
         Optional<Post> optAnswer = findById(answerId);
         if (optAnswer.isPresent() && optAnswer.get().getType() == Type.ANSWER) {
             deleteById(answerId);
-            return ok(getResponse(
-                    false,
-                    "00004",
-                    "Answer has been deleted successfully",
-                    new ArrayList<>()
-            ));
         } else {
             if (optAnswer.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Question Not Found");

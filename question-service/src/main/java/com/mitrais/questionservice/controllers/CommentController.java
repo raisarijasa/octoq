@@ -1,8 +1,9 @@
 package com.mitrais.questionservice.controllers;
 
+import com.mitrais.questionservice.controllers.requests.CommentRequest;
 import com.mitrais.questionservice.dto.CommentDto;
-import com.mitrais.questionservice.models.Comment;
 import com.mitrais.questionservice.services.CommentService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,13 +11,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.http.ResponseEntity.ok;
 
 /**
  * Comment Controller
  */
 @RestController
 @RequestMapping("/api")
-public class CommentController implements BaseController<Comment> {
+public class CommentController extends BaseController<CommentDto> {
     private CommentService commentService;
 
     /**
@@ -40,7 +45,14 @@ public class CommentController implements BaseController<Comment> {
         if (commentId == null || commentId == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
         }
-        return commentService.getCommentById(commentId);
+        List<CommentDto> comments = new ArrayList<>();
+        comments.add(commentService.getCommentById(commentId));
+        return ok(getResponse(
+                false,
+                "00003",
+                "Retrieve data success",
+                comments
+        ));
     }
 
     /**
@@ -50,8 +62,16 @@ public class CommentController implements BaseController<Comment> {
      * @return response entity object
      */
     @PostMapping("/comment")
-    public ResponseEntity createComment(@Valid @RequestBody CommentDto body) {
-        return commentService.createComment(body);
+    public ResponseEntity createComment(@Valid @RequestBody CommentRequest body) {
+        CommentDto dto = new CommentDto();
+        BeanUtils.copyProperties(body, dto);
+        commentService.createComment(dto, body.getPostId());
+        return ok(getResponse(
+                false,
+                "00001",
+                "A new comment has been created successfully",
+                new ArrayList<>()
+        ));
     }
 
     /**
@@ -61,8 +81,16 @@ public class CommentController implements BaseController<Comment> {
      * @return response entity object
      */
     @PutMapping("/comment")
-    public ResponseEntity updateComment(@Valid @RequestBody CommentDto body) {
-        return commentService.updateComment(body);
+    public ResponseEntity updateComment(@Valid @RequestBody CommentRequest body) {
+        CommentDto dto = new CommentDto();
+        BeanUtils.copyProperties(body, dto);
+        commentService.updateComment(dto);
+        return ok(getResponse(
+                false,
+                "00002",
+                "The comment has been updated successfully",
+                new ArrayList<>()
+        ));
     }
 
     /**
@@ -73,6 +101,15 @@ public class CommentController implements BaseController<Comment> {
      */
     @DeleteMapping("/comment/{commentId}")
     public ResponseEntity deleteComment(@PathVariable Long commentId) {
-        return commentService.deleteComment(commentId);
+        if (commentId == null || commentId == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+        }
+        commentService.deleteComment(commentId);
+        return ok(getResponse(
+                false,
+                "00004",
+                "Comment has been deleted successfully",
+                new ArrayList<>()
+        ));
     }
 }

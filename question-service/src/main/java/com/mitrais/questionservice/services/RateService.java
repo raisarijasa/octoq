@@ -2,7 +2,6 @@ package com.mitrais.questionservice.services;
 
 import com.mitrais.questionservice.dto.RateDto;
 import com.mitrais.questionservice.models.Rate;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
@@ -37,15 +36,13 @@ public interface RateService {
      * create rate
      *
      * @param body RateDto
-     * @return response entity
      */
-    ResponseEntity createRate(RateDto body);
+    void createRate(RateDto body, Long postId);
 
     /**
      * delete rate by Id
      *
-     * @param rateId of rate
-     * @return response entity
+     * @param userId of rate
      */
-    ResponseEntity deleteRate(String rateId);
+    void deleteRate(String userId);
 }
