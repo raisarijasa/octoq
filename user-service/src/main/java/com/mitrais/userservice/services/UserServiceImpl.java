@@ -1,11 +1,15 @@
 package com.mitrais.userservice.services;
 
+import com.mitrais.userservice.exceptions.model.UserNotFoundException;
 import com.mitrais.userservice.models.Role;
 import com.mitrais.userservice.models.User;
+import com.mitrais.userservice.models.dto.UserDto;
 import com.mitrais.userservice.repositories.MessageRepository;
 import com.mitrais.userservice.repositories.RoleRepository;
 import com.mitrais.userservice.repositories.UserRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,12 +35,25 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public UserDto findUserByEmail(String email) {
+        UserDto userDto = new UserDto();
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
+        }
+        BeanUtils.copyProperties(user, userDto, "roles", "password");
+        Set<String> roles = new HashSet<>();
+        for (Role role : user.getRoles()) {
+            roles.add(role.getRole());
+        }
+        userDto.setRoles(roles);
+        return userDto;
     }
 
     @Override
-    public void saveUser(User user) {
+    public void saveUser(UserDto userDto) {
+        User user = new User();
+        BeanUtils.copyProperties(userDto, user);
         boolean isEnabled = false;
         if (user.getId() == null || user.getId().isEmpty()) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -53,7 +70,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(User user) {
+    public void deleteUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
+        }
         userRepository.delete(user);
     }
 
@@ -63,9 +84,42 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeUserPassword(User user, String password) {
-        user.setPassword(bCryptPasswordEncoder.encode(password));
+    public void changeUserPassword(String email, String passwordNew, String passwordOld) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException(MessageRepository.USER_NOT_FOUND);
+        }
+        if (!isOldPasswordValid(user.getPassword(), passwordOld)) {
+            throw new BadCredentialsException(MessageRepository.INVALID_OLD_PASSWORD);
+        }
+        user.setPassword(bCryptPasswordEncoder.encode(passwordNew));
         userRepository.save(user);
+    }
+
+    @Override
+    public void updateUser(UserDto userDto) {
+        User user = userRepository.findByEmail(userDto.getEmail());
+        if (user == null) {
+            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, userDto.getEmail()));
+        }
+        user.setEmail(userDto.getEmail());
+        user.setFullname(userDto.getFullname());
+        Set<Role> roles = new HashSet<>();
+        for (String role : userDto.getRoles()) {
+            roles.add(roleRepository.findByRole(role));
+        }
+        user.setRoles(roles);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void enableUser(UserDto userDto) {
+        User userExists = userRepository.findByEmail(userDto.getEmail());
+        if (userExists == null) {
+            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, userDto.getEmail()));
+        }
+        userExists.setEnabled(userDto.getEnabled());
+        userRepository.save(userExists);
     }
 
     @Override

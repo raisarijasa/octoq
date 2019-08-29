@@ -1,16 +1,20 @@
 package com.mitrais.userservice.services;
 
-import com.mitrais.userservice.models.User;
+import com.mitrais.userservice.models.dto.UserDto;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
-    User findUserByEmail(String email);
+    UserDto findUserByEmail(String email);
 
-    void saveUser(User user);
+    void saveUser(UserDto user);
 
-    void deleteUser(User user);
+    void deleteUserByEmail(String email);
 
     boolean isOldPasswordValid(String encryptedPassword, String oldPassword);
 
-    void changeUserPassword(User user, String password);
+    void changeUserPassword(String email, String passwordNew, String passwordOld);
+
+    void updateUser(UserDto userDto);
+
+    void enableUser(UserDto userDto);
 }

@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserBody {
+@NoArgsConstructor
+public class UserDto {
+    private String id;
     private String email;
     private String password;
     private String fullname;
-    private boolean enabled;
-    private Set<Role> roles;
+    private Boolean enabled;
+    private Set<String> roles;
 }

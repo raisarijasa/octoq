@@ -1,5 +1,6 @@
 package com.mitrais.userservice.exceptions.handler;
 
+import com.mitrais.userservice.exceptions.model.DuplicateDataException;
 import com.mitrais.userservice.exceptions.model.ServiceException;
 import com.mitrais.userservice.exceptions.model.UserNotFoundException;
 import com.mongodb.MongoException;
@@ -39,6 +40,13 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleAbstractException(final Exception exception) {
+        log.warn("Processing abstract exception: {}", exception.getMessage());
+
+        return new ResponseEntity<>(exception.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateDataException.class)
+    public ResponseEntity handleDuplicateDataException(final DuplicateDataException exception) {
         log.warn("Processing abstract exception: {}", exception.getMessage());
 
         return new ResponseEntity<>(exception.getLocalizedMessage(), HttpStatus.BAD_REQUEST);

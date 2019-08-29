@@ -2,6 +2,7 @@ package com.mitrais.userservice.configs;
 
 import com.mitrais.userservice.models.Role;
 import com.mitrais.userservice.models.User;
+import com.mitrais.userservice.models.dto.UserDto;
 import com.mitrais.userservice.services.UserServiceImpl;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +38,11 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(User user) {
+    public String createToken(UserDto user) {
         Claims claims = Jwts.claims();
         claims.put("email", user.getEmail());
         claims.put("fullname", user.getFullname());
-        Set<String> roles = new HashSet<>();
-        for (Role role : user.getRoles()) {
-            roles.add(role.getRole());
-        }
-        claims.put("roles", roles);
+        claims.put("roles", user.getRoles());
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
         return Jwts.builder()//

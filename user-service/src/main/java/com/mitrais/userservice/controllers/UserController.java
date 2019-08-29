@@ -1,46 +1,52 @@
 package com.mitrais.userservice.controllers;
 
+import com.mitrais.userservice.controllers.request.ChangePasswordRequest;
+import com.mitrais.userservice.controllers.request.UserRequest;
+import com.mitrais.userservice.exceptions.model.DuplicateDataException;
 import com.mitrais.userservice.exceptions.model.ServiceException;
-import com.mitrais.userservice.exceptions.model.UserNotFoundException;
 import com.mitrais.userservice.models.Authority;
 import com.mitrais.userservice.models.Role;
-import com.mitrais.userservice.models.User;
-import com.mitrais.userservice.models.dto.ChangePasswordBody;
 import com.mitrais.userservice.models.dto.Response;
-import com.mitrais.userservice.models.dto.UserResponse;
+import com.mitrais.userservice.models.dto.UserDto;
 import com.mitrais.userservice.repositories.MessageRepository;
-import com.mitrais.userservice.services.UserServiceImpl;
+import com.mitrais.userservice.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-@RequestMapping("/api")
-public class UserController implements BaseResponse<UserResponse> {
+@RequestMapping("/users")
+public class UserController implements BaseResponse<UserDto> {
     private final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
-    private UserServiceImpl userService;
+    private final UserService userService;
 
-    @PostMapping("/user")
-    public ResponseEntity register(@RequestBody User user) throws ServiceException {
-        User userExists = userService.findUserByEmail(user.getEmail());
-        if (userExists != null) {
-            throw new ServiceException(String.format(MessageRepository.USER_WITH_EMAIL_EXIST, user.getEmail()), "register service");
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/")
+    public ResponseEntity register(@Valid @RequestBody UserRequest user) {
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(user, userDto);
+        try {
+            userService.saveUser(userDto);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateDataException("User with email " + user.getEmail() + " already exist.");
+        } catch (Exception e) {
+            throw new ServiceException("{default.error.message}");
         }
-        log.info("UserController register " + user);
-        userService.saveUser(user);
         return ok(getResponse(
                 false,
                 MessageRepository.USER_REG_SUCCESS_CODE,
@@ -49,52 +55,23 @@ public class UserController implements BaseResponse<UserResponse> {
         ));
     }
 
-    @PutMapping("/user")
-    public ResponseEntity updateUser(@RequestBody User user, Principal principal) {
-//        if (principal != null) {
-//            User loginUser = userService.findUserByEmail(principal.getName());
-            User userExists;
-
-//            if (loginUser.getEmail().equalsIgnoreCase(user.getEmail())) {
-//                userExists = loginUser;
-//            } else if (isAdmin(loginUser.getRoles())) {
-            userExists = userService.findUserByEmail(user.getEmail());
-//            } else {
-//                throw new BadCredentialsException(MessageRepository.UNAUTHORIZED);
-//            }
-
-        if (userExists == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, user.getEmail()));
-        }
-        log.info("UserController updateUser " + user);
-        userExists.setEmail(user.getEmail());
-        userExists.setFullname(user.getFullname());
-        userExists.setRoles(user.getRoles());
-        userService.saveUser(userExists);
+    @PutMapping("/")
+    public ResponseEntity updateUser(@Valid @RequestBody UserRequest userRequest, Principal principal) {
+        UserDto user = new UserDto();
+        BeanUtils.copyProperties(userRequest, user);
+        userService.updateUser(user);
         return ok(getResponse(
                 false,
                 MessageRepository.USER_UPDATE_SUCCESS_CODE,
                 MessageRepository.USER_UPDATE_SUCCESS,
                 new ArrayList<>()
         ));
-//        } else {
-//            throw new BadCredentialsException(MessageRepository.UNAUTHORIZED);
-//        }
     }
 
-    @GetMapping("/user")
-    public ResponseEntity getUserByEmail(@RequestParam("email") String email) {
-        User user = userService.findUserByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
-        }
-        log.info("UserController getUserByEmail " + user);
-        Set<String> roles = new HashSet<>();
-        for (Role role : user.getRoles()) {
-            roles.add(role.getRole());
-        }
-        List<UserResponse> data = new ArrayList<>();
-        data.add(new UserResponse(user.getId(), user.getEmail(), user.getFullname(), roles));
+    @GetMapping("/{email}")
+    public ResponseEntity getUserByEmail(@PathVariable String email) {
+        List<UserDto> data = new ArrayList<>();
+        data.add(userService.findUserByEmail(email));
         return ok(getResponse(
                 false,
                 MessageRepository.USER_GET_SUCCESS_CODE,
@@ -103,14 +80,12 @@ public class UserController implements BaseResponse<UserResponse> {
         ));
     }
 
-    @DeleteMapping("/user/{email}")
+    @DeleteMapping("/{email}")
     public ResponseEntity deleteUserByEmail(@PathVariable String email) {
-        User user = userService.findUserByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
+        if (email == null || email.isEmpty()) {
+            throw new ServiceException("{email.notEmpty}");
         }
-        log.info("UserController deleteUserByEmail " + user);
-        userService.deleteUser(user);
+        userService.deleteUserByEmail(email);
         return ok(getResponse(
                 false,
                 MessageRepository.USER_DEL_SUCCESS_CODE,
@@ -119,15 +94,14 @@ public class UserController implements BaseResponse<UserResponse> {
         ));
     }
 
-    @PutMapping("/user/activation")
-    public ResponseEntity enableUser(@RequestBody User user) {
-        User userExists = userService.findUserByEmail(user.getEmail());
-        if (userExists == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, user.getEmail()));
+    @PutMapping("/activation")
+    public ResponseEntity enableUser(@RequestBody UserRequest user) {
+        if (user.getEnabled() == null) {
+            throw new ServiceException("{status.notEmpty}");
         }
-        log.info("UserController enableUser " + userExists);
-        userExists.setEnabled(user.isEnabled());
-        userService.saveUser(userExists);
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(user, userDto);
+        userService.enableUser(userDto);
         return ok(getResponse(
                 false,
                 MessageRepository.USER_UPDATE_SUCCESS_CODE,
@@ -136,16 +110,9 @@ public class UserController implements BaseResponse<UserResponse> {
         ));
     }
 
-    @PostMapping("/user/change-password")
-    public ResponseEntity changePassword(@RequestBody ChangePasswordBody passwordBody, Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
-        if (user == null) {
-            throw new UserNotFoundException(MessageRepository.USER_NOT_FOUND);
-        }
-        if (!userService.isOldPasswordValid(user.getPassword(), passwordBody.getOldPassword())) {
-            throw new BadCredentialsException(MessageRepository.INVALID_OLD_PASSWORD);
-        }
-        userService.changeUserPassword(user, passwordBody.getNewPassword());
+    @PostMapping("/change-password")
+    public ResponseEntity changePassword(@Valid @RequestBody ChangePasswordRequest passwordBody, Principal principal) {
+        userService.changeUserPassword(principal.getName(), passwordBody.getNewPassword(), passwordBody.getOldPassword());
         return ok(getResponse(
                 false,
                 MessageRepository.CHANGE_PASSWORD_SUCCESS_CODE,
@@ -164,8 +131,8 @@ public class UserController implements BaseResponse<UserResponse> {
     }
 
     @Override
-    public Response<UserResponse> getResponse(boolean error, String code, String message, List<UserResponse> data) {
-        Response<UserResponse> response = new Response<>();
+    public Response<UserDto> getResponse(boolean error, String code, String message, List<UserDto> data) {
+        Response<UserDto> response = new Response<>();
         response.setError(error);
         response.setCode(code);
         response.setMessage(message);
