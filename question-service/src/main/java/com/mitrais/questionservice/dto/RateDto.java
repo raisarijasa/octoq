@@ -1,14 +1,15 @@
 package com.mitrais.questionservice.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Data
+@NoArgsConstructor
 public class RateDto {
-    @NotNull(message = "{postId.notnull}")
-    private Long postId;
-    @NotNull(message = "{userId.notnull}")
     private String userId;
     private int rating;
+    private Date createdDate;
+    private Date modifiedDate;
 }

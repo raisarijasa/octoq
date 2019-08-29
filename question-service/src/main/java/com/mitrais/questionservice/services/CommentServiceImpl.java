@@ -6,19 +6,20 @@ import com.mitrais.questionservice.models.Comment;
 import com.mitrais.questionservice.models.Status;
 import com.mitrais.questionservice.repositories.CommentRepository;
 import com.mitrais.questionservice.repositories.PostRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
-import static org.springframework.http.ResponseEntity.ok;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Comment Service
  */
 @Service
-public class CommentServiceImpl extends BaseServiceImpl<Comment> implements CommentService {
+public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepo;
     private PostRepository postRepo;
 
@@ -79,7 +80,7 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
      * validate comment exist by id
      *
      * @param id id of data
-     * @return
+     * @return true/false
      */
     @Override
     public boolean existsById(Long id) {
@@ -93,27 +94,25 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
      * @return response entity object
      */
     @Override
-    public ResponseEntity getCommentById(Long commentId) {
-        List<Comment> comments = new ArrayList<>();
+    public CommentDto getCommentById(Long commentId) {
         Optional<Comment> optComment = findById(commentId);
-        optComment.ifPresent(comments::add);
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                comments
-        ));
+        if (optComment.isPresent()) {
+            CommentDto dto = new CommentDto();
+            BeanUtils.copyProperties(optComment.get(), dto);
+            return dto;
+        } else {
+            throw new DataNotFoundException("Comment not found!");
+        }
     }
 
     /**
      * create comment
      *
      * @param body type CommentDto
-     * @return response entity object
      */
     @Override
-    public ResponseEntity createComment(CommentDto body) {
-        postRepo.findById(body.getPostId())
+    public void createComment(CommentDto body, Long postId) {
+        postRepo.findById(postId)
                 .map(question -> {
                     Set<Comment> comments = question.getComments();
                     Comment comment = new Comment()
@@ -127,27 +126,15 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
                     save(comment);
                     return question;
                 }).orElseThrow(() -> new DataNotFoundException("Question not found"));
-
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new comment has been created successfully",
-                new ArrayList<>()
-        ));
     }
 
     /**
      * update comment
      *
      * @param body CommentDto
-     * @return response entity object
      */
     @Override
-    public ResponseEntity updateComment(CommentDto body) {
-        if (!postRepo.existsById(body.getPostId())) {
-            throw new DataNotFoundException("Data not found!");
-        }
-
+    public void updateComment(CommentDto body) {
         findById(body.getId())
                 .map(comment -> {
                     comment.setDescription(body.getDescription());
@@ -155,32 +142,18 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
                     save(comment);
                     return comment;
                 }).orElseThrow(() -> new DataNotFoundException("Comment not found!"));
-
-        return ok(getResponse(
-                false,
-                "00002",
-                "The comment has been updated successfully",
-                new ArrayList<>()
-        ));
     }
 
     /**
      * delete comment by id
      *
      * @param commentId id of comment
-     * @return response entity object
      */
     @Override
-    public ResponseEntity deleteComment(Long commentId) {
+    public void deleteComment(Long commentId) {
         Optional<Comment> optComment = findById(commentId);
         if (optComment.isPresent()) {
             deleteById(commentId);
-            return ok(getResponse(
-                    false,
-                    "00004",
-                    "Comment has been deleted successfully",
-                    new ArrayList<>()
-            ));
         } else {
             throw new DataNotFoundException("Comment Not Found");
         }
