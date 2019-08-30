@@ -9,10 +9,11 @@ import java.util.Set;
 
 @Data
 @Builder
-public class UserRequest {
+public class RegisterRequest {
     private String id;
     @Email(message = "{email.invalid}")
     private String email;
+    @NotEmpty(message = "{password.notEmpty}")
     private String password;
     @NotEmpty(message = "{fullName.notEmpty}")
     private String fullname;

@@ -53,17 +53,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveUser(UserDto userDto) {
         User user = new User();
-        BeanUtils.copyProperties(userDto, user);
+        BeanUtils.copyProperties(userDto, user, "enabled", "roles");
         boolean isEnabled = false;
         if (user.getId() == null || user.getId().isEmpty()) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         } else {
-            isEnabled = user.isEnabled();
+            isEnabled = userDto.getEnabled();
         }
         user.setEnabled(isEnabled);
         Set<Role> roles = new HashSet<>();
-        for (Role role : user.getRoles()) {
-            roles.add(roleRepository.findByRole(role.getRole()));
+        for (String role : userDto.getRoles()) {
+            roles.add(roleRepository.findByRole(role));
         }
         user.setRoles(roles);
         userRepository.save(user);

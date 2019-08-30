@@ -1,6 +1,7 @@
 package com.mitrais.userservice.controllers;
 
 import com.mitrais.userservice.controllers.request.ChangePasswordRequest;
+import com.mitrais.userservice.controllers.request.RegisterRequest;
 import com.mitrais.userservice.controllers.request.UserRequest;
 import com.mitrais.userservice.exceptions.model.DuplicateDataException;
 import com.mitrais.userservice.exceptions.model.ServiceException;
@@ -37,7 +38,7 @@ public class UserController implements BaseResponse<UserDto> {
     }
 
     @PostMapping("/")
-    public ResponseEntity register(@Valid @RequestBody UserRequest user) {
+    public ResponseEntity register(@Valid @RequestBody RegisterRequest user) {
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(user, userDto);
         try {
