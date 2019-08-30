@@ -3,10 +3,11 @@ package com.mitrais.questionservice.controllers.requests;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class RateRequest {
-    @NotEmpty(message = "{postId.NotEmpty}")
+    @NotNull(message = "{postId.NotEmpty}")
     private Long postId;
     @NotEmpty(message = "{userId.NotEmpty}")
     private String userId;

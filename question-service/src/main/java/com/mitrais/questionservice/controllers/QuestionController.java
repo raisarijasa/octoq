@@ -21,7 +21,7 @@ import static org.springframework.http.ResponseEntity.ok;
  * Question controller
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/questions")
 public class QuestionController extends BaseController<QuestionDto> {
     private PostService postService;
 
@@ -41,7 +41,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      * @param id id of the question
      * @return response entity object
      */
-    @GetMapping("/question/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity getQuestionById(@PathVariable Long id) {
         if (id == null || id == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question ID should not be null or 0");
@@ -62,7 +62,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      *
      * @return response entity object
      */
-    @GetMapping("/question")
+    @GetMapping("/")
     public ResponseEntity getQuestions() {
         List<QuestionDto> questions = postService.getQuestions();
         return ok(getResponse(
@@ -79,7 +79,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      * @param body type QuestionDto
      * @return response entity object
      */
-    @PostMapping("/question")
+    @PostMapping("/")
     public ResponseEntity createQuestion(@Valid @RequestBody QuestionRequest body) {
         QuestionDto data = new QuestionDto();
         BeanUtils.copyProperties(body, data);
@@ -98,7 +98,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      * @param body type QuestionDto
      * @return response entity object
      */
-    @PutMapping("/question")
+    @PutMapping("/")
     public ResponseEntity updateQuestion(@Valid @RequestBody QuestionRequest body) {
         QuestionDto data = new QuestionDto();
         BeanUtils.copyProperties(body, data);
@@ -117,7 +117,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      * @param id of question
      * @return response entity object
      */
-    @DeleteMapping("/question/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteQuestionById(@PathVariable Long id) {
         if (id == null || id == 0) {
             throw new ServiceException("Question ID should not be null or 0");
@@ -138,7 +138,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      * @param body type QuestionDto
      * @return
      */
-    @PostMapping("/question/change_status")
+    @PostMapping("/change_status")
     public ResponseEntity changeStatus(@RequestBody QuestionRequest body) {
         QuestionDto data = new QuestionDto();
         BeanUtils.copyProperties(body, data);

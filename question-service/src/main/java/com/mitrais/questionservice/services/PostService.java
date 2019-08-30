@@ -79,8 +79,7 @@ public interface PostService extends BaseService<Post> {
     /**
      * delete answer by id
      *
-     * @param questionId of question
      * @param answerId   of answer
      */
-    void deleteAnswer(Long questionId, Long answerId);
+    void deleteAnswer(Long answerId);
 }
