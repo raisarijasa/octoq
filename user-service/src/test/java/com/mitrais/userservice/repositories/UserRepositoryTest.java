@@ -40,7 +40,6 @@ public class UserRepositoryTest {
     void testUpdateUser_ReturnSuccess() {
         String userName = "User 1";
         User user = User.builder().email("test@test.com").build();
-        userRepository.save(user);
         user.setFullname(userName);
         userRepository.save(user);
         User userDb = userRepository.findByEmail(user.getEmail());
