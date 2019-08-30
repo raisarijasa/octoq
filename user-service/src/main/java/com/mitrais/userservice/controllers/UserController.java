@@ -46,7 +46,7 @@ public class UserController implements BaseResponse<UserDto> {
         } catch (DuplicateKeyException e) {
             throw new DuplicateDataException("User with email " + user.getEmail() + " already exist.");
         } catch (Exception e) {
-            throw new ServiceException("{default.error.message}");
+            throw new ServiceException("Something went wrong. Please contact administrator.");
         }
         return ok(getResponse(
                 false,
@@ -84,7 +84,7 @@ public class UserController implements BaseResponse<UserDto> {
     @DeleteMapping("/{email}")
     public ResponseEntity deleteUserByEmail(@PathVariable String email) {
         if (email == null || email.isEmpty()) {
-            throw new ServiceException("{email.notEmpty}");
+            throw new ServiceException("Email is mandatory.");
         }
         userService.deleteUserByEmail(email);
         return ok(getResponse(
@@ -98,7 +98,7 @@ public class UserController implements BaseResponse<UserDto> {
     @PutMapping("/activation")
     public ResponseEntity enableUser(@RequestBody UserRequest user) {
         if (user.getEnabled() == null) {
-            throw new ServiceException("{status.notEmpty}");
+            throw new ServiceException("Status should not empty.");
         }
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(user, userDto);
