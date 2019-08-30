@@ -19,7 +19,7 @@ import static org.springframework.http.ResponseEntity.ok;
  * Rate Controller
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/rates")
 public class RateController extends BaseController<RateDto> {
     private RateService rateService;
 
@@ -37,7 +37,7 @@ public class RateController extends BaseController<RateDto> {
      * @param body type RateDto
      * @return response entity object
      */
-    @PostMapping("/rate")
+    @PostMapping("/")
     public ResponseEntity createRate(@Valid @RequestBody RateRequest body) {
         RateDto dto = new RateDto();
         BeanUtils.copyProperties(body, dto);
@@ -55,7 +55,7 @@ public class RateController extends BaseController<RateDto> {
      * @param userId of the rate
      * @return response entity
      */
-    @DeleteMapping("/rate/{rateId}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity deleteRate(@PathVariable String userId) {
         if (userId == null || userId.equalsIgnoreCase("0")) {
             throw new ServiceException("Rate ID should not be null or 0");

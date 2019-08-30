@@ -21,7 +21,7 @@ import static org.springframework.http.ResponseEntity.ok;
  * Answer Controller
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/answers")
 public class AnswerController extends BaseController<AnswerDto> {
     private PostService postService;
 
@@ -41,7 +41,7 @@ public class AnswerController extends BaseController<AnswerDto> {
      * @param answerId type Long
      * @return response entity object
      */
-    @GetMapping("/answer/{answerId}")
+    @GetMapping("/{answerId}")
     public ResponseEntity getAnswerById(@PathVariable Long answerId) {
         if (answerId == null || answerId == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
@@ -62,7 +62,7 @@ public class AnswerController extends BaseController<AnswerDto> {
      * @param body type AnswerDto
      * @return response entity object
      */
-    @PostMapping("/answer")
+    @PostMapping("/")
     public ResponseEntity createAnswer(@Valid @RequestBody AnswerRequest body) {
         AnswerDto dto = new AnswerDto();
         BeanUtils.copyProperties(body, dto);
@@ -81,7 +81,7 @@ public class AnswerController extends BaseController<AnswerDto> {
      * @param body type AnswerDto
      * @return response entity object
      */
-    @PutMapping("/answer")
+    @PutMapping("/")
     public ResponseEntity updateAnswer(@Valid @RequestBody AnswerRequest body) {
         if (body.getId() == null || body.getId() == 0) {
             throw new ServiceException("Question ID should not be null or 0");
@@ -100,14 +100,12 @@ public class AnswerController extends BaseController<AnswerDto> {
     /**
      * Delete answer
      *
-     * @param questionId type Long
      * @param answerId   type Long
      * @return response entity object
      */
-    @DeleteMapping("/question/{questionId}/answer/{answerId}")
-    public ResponseEntity deleteAnswer(@PathVariable Long questionId,
-                                       @PathVariable Long answerId) {
-        postService.deleteAnswer(questionId, answerId);
+    @DeleteMapping("/{answerId}")
+    public ResponseEntity deleteAnswer(@PathVariable Long answerId) {
+        postService.deleteAnswer(answerId);
         return ok(getResponse(
                 false,
                 "00004",

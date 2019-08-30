@@ -20,7 +20,7 @@ import static org.springframework.http.ResponseEntity.ok;
  * Comment Controller
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/comments")
 public class CommentController extends BaseController<CommentDto> {
     private CommentService commentService;
 
@@ -40,7 +40,7 @@ public class CommentController extends BaseController<CommentDto> {
      * @param commentId id of comment
      * @return response entity object
      */
-    @GetMapping("/comment/{commentId}")
+    @GetMapping("/{commentId}")
     public ResponseEntity getCommentById(@PathVariable Long commentId) {
         if (commentId == null || commentId == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
@@ -61,7 +61,7 @@ public class CommentController extends BaseController<CommentDto> {
      * @param body type CommentDto
      * @return response entity object
      */
-    @PostMapping("/comment")
+    @PostMapping("/")
     public ResponseEntity createComment(@Valid @RequestBody CommentRequest body) {
         CommentDto dto = new CommentDto();
         BeanUtils.copyProperties(body, dto);
@@ -80,7 +80,7 @@ public class CommentController extends BaseController<CommentDto> {
      * @param body type CommentDto
      * @return response entity object
      */
-    @PutMapping("/comment")
+    @PutMapping("/")
     public ResponseEntity updateComment(@Valid @RequestBody CommentRequest body) {
         CommentDto dto = new CommentDto();
         BeanUtils.copyProperties(body, dto);
@@ -99,7 +99,7 @@ public class CommentController extends BaseController<CommentDto> {
      * @param commentId id of comment
      * @return response entity object
      */
-    @DeleteMapping("/comment/{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity deleteComment(@PathVariable Long commentId) {
         if (commentId == null || commentId == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");

@@ -4,17 +4,18 @@ import com.mitrais.questionservice.models.Status;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
 public class QuestionRequest {
     private Long id;
-    @NotNull(message = "{userId.notnull}")
+    @NotEmpty(message = "{userId.NotEmpty}")
     private String userId;
-    @NotNull(message = "{title.notnull}")
+    @NotEmpty(message = "{title.NotEmpty}")
     private String title;
-    @NotNull(message = "{description.notnull}")
+    @NotEmpty(message = "{description.NotEmpty}")
     private String description;
     private Status status;
 }

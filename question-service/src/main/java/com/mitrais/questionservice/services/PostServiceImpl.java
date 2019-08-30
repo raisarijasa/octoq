@@ -119,7 +119,7 @@ public class PostServiceImpl implements PostService {
         QuestionDto dto;
         for (Post post : questions) {
             dto = new QuestionDto();
-            BeanUtils.copyProperties(post, dto, "answers");
+            BeanUtils.copyProperties(post, dto, "answers", "comments");
             questionDtos.add(dto);
         }
         return questionDtos;
@@ -256,20 +256,15 @@ public class PostServiceImpl implements PostService {
 
     /**
      * delete answer
-     *
-     * @param questionId of question
+     *question
      * @param answerId   of answer
      */
     @Override
-    public void deleteAnswer(Long questionId, Long answerId) {
+    public void deleteAnswer(Long answerId) {
         Optional<Post> optAnswer = findById(answerId);
         if (optAnswer.isPresent() && optAnswer.get().getType() == Type.ANSWER) {
             deleteById(answerId);
         } else {
-            if (optAnswer.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Question Not Found");
-            }
-
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer Not Found");
         }
     }
