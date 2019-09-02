@@ -1,7 +1,5 @@
 package com.mitrais.questionservice.exceptions.handler;
 
-import com.mitrais.questionservice.exceptions.model.DataNotFoundException;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -14,8 +12,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.mitrais.questionservice.exceptions.model.DataNotFoundException;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
+
 /**
- * Exception handler
+ * Provide functionality to manipulate Exception Handler.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {

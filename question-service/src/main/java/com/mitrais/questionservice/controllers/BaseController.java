@@ -1,12 +1,13 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.models.Response;
-
 import java.util.List;
 
+import com.mitrais.questionservice.dto.Response;
+
 /**
- * Base Controller
+ * Provide Base Controller.
  *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  * @param <T> generic object
  */
 public class BaseController<T> {

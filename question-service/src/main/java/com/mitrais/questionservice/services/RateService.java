@@ -1,12 +1,13 @@
 package com.mitrais.questionservice.services;
 
-import com.mitrais.questionservice.dto.RateDto;
-import com.mitrais.questionservice.models.Rate;
-
 import java.util.Optional;
 
+import com.mitrais.questionservice.models.Rate;
+
 /**
- * Rate Service
+ * Provide functionality to manipulate Question and Answer input request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public interface RateService {
 
@@ -35,9 +36,9 @@ public interface RateService {
     /**
      * create rate
      *
-     * @param body RateDto
+     * @param body Rate
      */
-    void createRate(RateDto body, Long postId);
+    void createRate(Rate body, Long postId);
 
     /**
      * delete rate by Id

@@ -1,27 +1,31 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.controllers.requests.CommentRequest;
-import com.mitrais.questionservice.dto.CommentDto;
-import com.mitrais.questionservice.services.CommentService;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import com.mitrais.questionservice.controllers.requests.CommentRequest;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
+import com.mitrais.questionservice.models.Comment;
+import com.mitrais.questionservice.services.CommentService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 /**
- * Comment Controller
+ * Provide functionality to manipulate Comment data request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 @RestController
 @RequestMapping("/comments")
-public class CommentController extends BaseController<CommentDto> {
+public class CommentController extends BaseController<Comment> {
     private CommentService commentService;
 
     /**
@@ -45,7 +49,7 @@ public class CommentController extends BaseController<CommentDto> {
         if (commentId == null || commentId == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
         }
-        List<CommentDto> comments = new ArrayList<>();
+        List<Comment> comments = new ArrayList<>();
         comments.add(commentService.getCommentById(commentId));
         return ok(getResponse(
                 false,
@@ -58,14 +62,14 @@ public class CommentController extends BaseController<CommentDto> {
     /**
      * create a comment
      *
-     * @param body type CommentDto
+     * @param request type Comment
      * @return response entity object
      */
     @PostMapping("/")
-    public ResponseEntity createComment(@Valid @RequestBody CommentRequest body) {
-        CommentDto dto = new CommentDto();
-        BeanUtils.copyProperties(body, dto);
-        commentService.createComment(dto, body.getPostId());
+    public ResponseEntity createComment(@Validated(CommentRequest.CreateGroup.class) @RequestBody CommentRequest request) {
+        Comment comment = new Comment();
+        BeanUtils.copyProperties(request, comment);
+        commentService.createComment(comment, request.getPostId());
         return ok(getResponse(
                 false,
                 "00001",
@@ -77,14 +81,14 @@ public class CommentController extends BaseController<CommentDto> {
     /**
      * update a comment
      *
-     * @param body type CommentDto
+     * @param request type Comment
      * @return response entity object
      */
     @PutMapping("/")
-    public ResponseEntity updateComment(@Valid @RequestBody CommentRequest body) {
-        CommentDto dto = new CommentDto();
-        BeanUtils.copyProperties(body, dto);
-        commentService.updateComment(dto);
+    public ResponseEntity updateComment(@Validated(CommentRequest.CreateGroup.class) @RequestBody CommentRequest request) {
+        Comment comment = new Comment();
+        BeanUtils.copyProperties(request, comment);
+        commentService.updateComment(comment);
         return ok(getResponse(
                 false,
                 "00002",
@@ -102,7 +106,7 @@ public class CommentController extends BaseController<CommentDto> {
     @DeleteMapping("/{commentId}")
     public ResponseEntity deleteComment(@PathVariable Long commentId) {
         if (commentId == null || commentId == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+            throw new ServiceException("Comment Id is mandatory.");
         }
         commentService.deleteComment(commentId);
         return ok(getResponse(

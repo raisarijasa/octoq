@@ -1,8 +1,10 @@
 package com.mitrais.questionservice.repositories;
 
+import com.mitrais.questionservice.dto.PostDto;
 import com.mitrais.questionservice.models.Post;
 import com.mitrais.questionservice.models.Status;
 import com.mitrais.questionservice.models.Type;
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,5 +137,12 @@ public class PostRepositoryTest {
 
         Post question = repository.getOne(sampleData.getId());
         Assert.assertThat(question.getAnswers().size(), is(1));
+    }
+
+    @Test
+    public void testGetPostByType_shouldreturnProjection() {
+        repository.save(sampleData);
+        List<PostDto> posts = repository.findByType(Type.QUESTION);
+        Assertions.assertThat(posts.size()).isEqualTo(1);
     }
 }

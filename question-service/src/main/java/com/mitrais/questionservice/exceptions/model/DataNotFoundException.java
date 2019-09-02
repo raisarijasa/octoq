@@ -1,7 +1,9 @@
 package com.mitrais.questionservice.exceptions.model;
 
 /**
- * Data not found exception
+ * Provide functionality to manipulate Data Not Found Exception.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public class DataNotFoundException extends RuntimeException {
     public DataNotFoundException() {

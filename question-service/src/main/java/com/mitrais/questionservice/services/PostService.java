@@ -1,13 +1,14 @@
 package com.mitrais.questionservice.services;
 
-import com.mitrais.questionservice.dto.AnswerDto;
-import com.mitrais.questionservice.dto.QuestionDto;
-import com.mitrais.questionservice.models.Post;
-
 import java.util.List;
 
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.models.Status;
+
 /**
- * Post Service
+ * Provide functionality to manipulate Question and Answer input request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public interface PostService extends BaseService<Post> {
 
@@ -17,28 +18,28 @@ public interface PostService extends BaseService<Post> {
      * @param id of question
      * @return question
      */
-    QuestionDto getQuestionById(Long id);
+    Post getQuestionById(Long id);
 
     /**
      * get questions
      *
      * @return list of question
      */
-    List<QuestionDto> getQuestions();
+    List<Post> getQuestions();
 
     /**
      * create new question
      *
-     * @param body type QuestionDto
+     * @param body type Post
      */
-    void createQuestion(QuestionDto body);
+    void createQuestion(Post body);
 
     /**
      * update question
      *
-     * @param body QuestionDto
+     * @param body Post
      */
-    void updateQuestion(QuestionDto body);
+    void updateQuestion(Post body);
 
     /**
      * Delete question by id
@@ -50,36 +51,37 @@ public interface PostService extends BaseService<Post> {
     /**
      * change question status
      *
-     * @param body QuestionDto
+     * @param id     QuestionId
+     * @param status question status
      */
-    void changeStatus(QuestionDto body);
+    void changeStatus(Long id, Status status);
 
     /**
      * get answer by id
      *
      * @param id of answer
-     * @return answer dto object
+     * @return Post object
      */
-    AnswerDto getAnswerById(Long id);
+    Post getAnswerById(Long id);
 
     /**
      * create new answer
      *
-     * @param body AnswerDto
+     * @param body Post
      */
-    void createAnswer(AnswerDto body, Long questionId);
+    void createAnswer(Post body, Long questionId);
 
     /**
      * update answer
      *
-     * @param body AnswerDto
+     * @param body Post
      */
-    void updateAnswer(AnswerDto body);
+    void updateAnswer(Post body);
 
     /**
      * delete answer by id
      *
-     * @param answerId   of answer
+     * @param answerId of answer
      */
     void deleteAnswer(Long answerId);
 }
