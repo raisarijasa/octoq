@@ -1,28 +1,32 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.controllers.requests.QuestionRequest;
-import com.mitrais.questionservice.dto.QuestionDto;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
-import com.mitrais.questionservice.services.PostService;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import com.mitrais.questionservice.controllers.requests.QuestionRequest;
+import com.mitrais.questionservice.controllers.requests.StatusRequest;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.services.PostService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 /**
- * Question controller
+ * Provide functionality to manipulate Question data request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 @RestController
 @RequestMapping("/questions")
-public class QuestionController extends BaseController<QuestionDto> {
+public class QuestionController extends BaseController<Post> {
     private PostService postService;
 
     /**
@@ -47,7 +51,7 @@ public class QuestionController extends BaseController<QuestionDto> {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question ID should not be null or 0");
         }
 
-        List<QuestionDto> questions = new ArrayList<>();
+        List<Post> questions = new ArrayList<>();
         questions.add(postService.getQuestionById(id));
         return ok(getResponse(
                 false,
@@ -64,7 +68,7 @@ public class QuestionController extends BaseController<QuestionDto> {
      */
     @GetMapping("/")
     public ResponseEntity getQuestions() {
-        List<QuestionDto> questions = postService.getQuestions();
+        List<Post> questions = postService.getQuestions();
         return ok(getResponse(
                 false,
                 "00003",
@@ -76,13 +80,13 @@ public class QuestionController extends BaseController<QuestionDto> {
     /**
      * create question
      *
-     * @param body type QuestionDto
+     * @param request type QuestionDto
      * @return response entity object
      */
     @PostMapping("/")
-    public ResponseEntity createQuestion(@Valid @RequestBody QuestionRequest body) {
-        QuestionDto data = new QuestionDto();
-        BeanUtils.copyProperties(body, data);
+    public ResponseEntity createQuestion(@Validated(QuestionRequest.CreateGroup.class) @RequestBody QuestionRequest request) {
+        Post data = new Post();
+        BeanUtils.copyProperties(request, data);
         postService.createQuestion(data);
         return ok(getResponse(
                 false,
@@ -95,13 +99,13 @@ public class QuestionController extends BaseController<QuestionDto> {
     /**
      * update question
      *
-     * @param body type QuestionDto
+     * @param request type QuestionDto
      * @return response entity object
      */
     @PutMapping("/")
-    public ResponseEntity updateQuestion(@Valid @RequestBody QuestionRequest body) {
-        QuestionDto data = new QuestionDto();
-        BeanUtils.copyProperties(body, data);
+    public ResponseEntity updateQuestion(@Validated(QuestionRequest.UpdateGroup.class) @RequestBody QuestionRequest request) {
+        Post data = new Post();
+        BeanUtils.copyProperties(request, data);
         postService.updateQuestion(data);
         return ok(getResponse(
                 false,
@@ -135,14 +139,12 @@ public class QuestionController extends BaseController<QuestionDto> {
     /**
      * change question status
      *
-     * @param body type QuestionDto
-     * @return
+     * @param request StatusRequest Object
+     * @return response entity object
      */
     @PostMapping("/change_status")
-    public ResponseEntity changeStatus(@RequestBody QuestionRequest body) {
-        QuestionDto data = new QuestionDto();
-        BeanUtils.copyProperties(body, data);
-        postService.changeStatus(data);
+    public ResponseEntity changeStatus(@RequestBody StatusRequest request) {
+        postService.changeStatus(request.getId(), request.getStatus());
         return ok(getResponse(
                 false,
                 "00002",

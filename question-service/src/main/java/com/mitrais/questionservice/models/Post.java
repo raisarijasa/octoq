@@ -1,12 +1,18 @@
 package com.mitrais.questionservice.models;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+/**
+ * Provide java object which map to Post table in database.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
+ */
 @Data
 @Accessors(chain = true)
 @Entity
@@ -15,11 +21,14 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String userId;
 
     @Enumerated(EnumType.STRING)
     private Type type;
+    @Column(nullable = false)
     private String title;
+    @Column(nullable = false)
     private String description;
     private Date createdDate;
     private Date modifiedDate;

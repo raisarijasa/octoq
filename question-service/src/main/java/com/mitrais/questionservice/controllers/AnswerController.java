@@ -1,28 +1,31 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.controllers.requests.AnswerRequest;
-import com.mitrais.questionservice.dto.AnswerDto;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
-import com.mitrais.questionservice.services.PostService;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import com.mitrais.questionservice.controllers.requests.AnswerRequest;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.services.PostService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 /**
- * Answer Controller
+ * Provide functionality to manipulate Answer request data and return response entity.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 @RestController
 @RequestMapping("/answers")
-public class AnswerController extends BaseController<AnswerDto> {
+public class AnswerController extends BaseController<Post> {
     private PostService postService;
 
     /**
@@ -46,7 +49,7 @@ public class AnswerController extends BaseController<AnswerDto> {
         if (answerId == null || answerId == 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
         }
-        List<AnswerDto> answers = new ArrayList<>();
+        List<Post> answers = new ArrayList<>();
         answers.add(postService.getAnswerById(answerId));
         return ok(getResponse(
                 false,
@@ -59,14 +62,14 @@ public class AnswerController extends BaseController<AnswerDto> {
     /**
      * create answer
      *
-     * @param body type AnswerDto
+     * @param request type AnswerRequest
      * @return response entity object
      */
-    @PostMapping("/")
-    public ResponseEntity createAnswer(@Valid @RequestBody AnswerRequest body) {
-        AnswerDto dto = new AnswerDto();
-        BeanUtils.copyProperties(body, dto);
-        postService.createAnswer(dto, body.getQuestionId());
+    @PostMapping("/{questionId}")
+    public ResponseEntity createAnswer(@Validated(AnswerRequest.CreateGroup.class) @RequestBody AnswerRequest request) {
+        Post post = new Post();
+        BeanUtils.copyProperties(request, post);
+        postService.createAnswer(post, request.getQuestionId());
         return ok(getResponse(
                 false,
                 "00001",
@@ -78,17 +81,17 @@ public class AnswerController extends BaseController<AnswerDto> {
     /**
      * update answer
      *
-     * @param body type AnswerDto
+     * @param request type AnswerDto
      * @return response entity object
      */
     @PutMapping("/")
-    public ResponseEntity updateAnswer(@Valid @RequestBody AnswerRequest body) {
-        if (body.getId() == null || body.getId() == 0) {
+    public ResponseEntity updateAnswer(@Validated(AnswerRequest.UpdateGroup.class) @RequestBody AnswerRequest request) {
+        if (request.getId() == null || request.getId() == 0) {
             throw new ServiceException("Question ID should not be null or 0");
         }
-        AnswerDto dto = new AnswerDto();
-        BeanUtils.copyProperties(body, dto);
-        postService.updateAnswer(dto);
+        Post post = new Post();
+        BeanUtils.copyProperties(request, post);
+        postService.updateAnswer(post);
         return ok(getResponse(
                 false,
                 "00002",
@@ -100,7 +103,7 @@ public class AnswerController extends BaseController<AnswerDto> {
     /**
      * Delete answer
      *
-     * @param answerId   type Long
+     * @param answerId type Long
      * @return response entity object
      */
     @DeleteMapping("/{answerId}")

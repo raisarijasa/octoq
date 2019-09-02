@@ -1,30 +1,33 @@
 package com.mitrais.questionservice.controllers;
 
-import com.mitrais.questionservice.controllers.requests.RateRequest;
-import com.mitrais.questionservice.dto.RateDto;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
-import com.mitrais.questionservice.models.Rate;
-import com.mitrais.questionservice.services.RateService;
+import javax.validation.Valid;
+import java.util.ArrayList;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
+import com.mitrais.questionservice.controllers.requests.RateRequest;
+import com.mitrais.questionservice.exceptions.model.ServiceException;
+import com.mitrais.questionservice.models.Rate;
+import com.mitrais.questionservice.services.RateService;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 /**
- * Rate Controller
+ * Provide functionality to manipulate Rate data request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 @RestController
 @RequestMapping("/rates")
-public class RateController extends BaseController<RateDto> {
+public class RateController extends BaseController<Rate> {
     private RateService rateService;
 
     /**
      * Rate Controller Constructor
+     *
      * @param rateService service of rate
      */
     @Autowired
@@ -34,14 +37,15 @@ public class RateController extends BaseController<RateDto> {
 
     /**
      * Create rate
-     * @param body type RateDto
+     *
+     * @param request type Rate
      * @return response entity object
      */
     @PostMapping("/")
-    public ResponseEntity createRate(@Valid @RequestBody RateRequest body) {
-        RateDto dto = new RateDto();
-        BeanUtils.copyProperties(body, dto);
-        rateService.createRate(dto, body.getPostId());
+    public ResponseEntity createRate(@Valid @RequestBody RateRequest request) {
+        Rate rate = new Rate();
+        BeanUtils.copyProperties(request, rate);
+        rateService.createRate(rate, request.getPostId());
         return ok(getResponse(
                 false,
                 "00001",
@@ -52,6 +56,7 @@ public class RateController extends BaseController<RateDto> {
 
     /**
      * delete rate
+     *
      * @param userId of the rate
      * @return response entity
      */

@@ -5,16 +5,17 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
+import com.mitrais.questionservice.models.Status;
+
 /**
- * Provide Rate request object.
+ * Provide status request object.
  *
  * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 @Data
-public class RateRequest {
+public class StatusRequest {
     @NotNull(message = "{postId.NotEmpty}")
-    private Long postId;
-    @NotEmpty(message = "{userId.NotEmpty}")
-    private String userId;
-    private int rating;
+    private Long id;
+    @NotEmpty(message = "{status.NotEmpty}")
+    private Status status;
 }

@@ -1,10 +1,11 @@
 package com.mitrais.questionservice.services;
 
-import com.mitrais.questionservice.dto.CommentDto;
 import com.mitrais.questionservice.models.Comment;
 
 /**
- * Comment service
+ * Provide functionality to manipulate Comment input request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public interface CommentService extends BaseService<Comment> {
 
@@ -12,23 +13,23 @@ public interface CommentService extends BaseService<Comment> {
      * get comment by id
      *
      * @param commentId id of comment
-     * @return response entity object
+     * @return comment object
      */
-    CommentDto getCommentById(Long commentId);
+    Comment getCommentById(Long commentId);
 
     /**
      * create comment
      *
-     * @param body type CommentDto
+     * @param body type Comment
      */
-    void createComment(CommentDto body, Long postId);
+    void createComment(Comment body, Long postId);
 
     /**
      * update comment
      *
-     * @param body CommentDto
+     * @param body Comment
      */
-    void updateComment(CommentDto body);
+    void updateComment(Comment body);
 
     /**
      * Delete comment by id

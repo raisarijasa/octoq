@@ -1,10 +1,13 @@
 package com.mitrais.questionservice.repositories;
 
-import com.mitrais.questionservice.models.Rate;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.mitrais.questionservice.models.Rate;
+
 /**
- * Rate Repository
+ * Provide functionality to manipulate Rate data in database.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public interface RateRepository extends JpaRepository<Rate, String> {
 }

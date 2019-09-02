@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Base service
+ * Provide functionality to manipulate data.
  *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  * @param <T> generic type
  */
 public interface BaseService<T> {

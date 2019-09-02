@@ -1,7 +1,9 @@
 package com.mitrais.questionservice.exceptions.model;
 
 /**
- * Service exception
+ * Provide functionality to manipulate General Service Exception.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public class ServiceException extends RuntimeException {
     public ServiceException() {

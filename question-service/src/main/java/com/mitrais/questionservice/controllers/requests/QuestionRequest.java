@@ -1,21 +1,35 @@
 package com.mitrais.questionservice.controllers.requests;
 
-import com.mitrais.questionservice.models.Status;
-import lombok.Builder;
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import lombok.Builder;
+import lombok.Data;
+
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.models.Status;
+
+/**
+ * Provide Question request object.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
+ */
 @Data
 @Builder
 public class QuestionRequest {
+    @NotNull(message = "{id.NotEmpty}", groups = {UpdateGroup.class})
     private Long id;
-    @NotEmpty(message = "{userId.NotEmpty}")
+    @NotEmpty(message = "{userId.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
     private String userId;
-    @NotEmpty(message = "{title.NotEmpty}")
+    @NotEmpty(message = "{title.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
     private String title;
-    @NotEmpty(message = "{description.NotEmpty}")
+    @NotEmpty(message = "{description.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
     private String description;
     private Status status;
+
+    public interface UpdateGroup {
+    }
+
+    public interface CreateGroup {
+    }
 }
