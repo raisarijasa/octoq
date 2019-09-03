@@ -1,5 +1,10 @@
 package com.mitrais.userservice.exceptions.model;
 
+/**
+ * Provide functionality to receive duplicate data exception.
+ *
+ * @author Rai Suardhyana Arijasa on 9/3/2019.
+ */
 public class DuplicateDataException extends RuntimeException {
 
     public DuplicateDataException() {

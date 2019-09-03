@@ -1,12 +1,10 @@
 package com.mitrais.userservice.services;
 
-import com.mitrais.userservice.exceptions.model.UserNotFoundException;
-import com.mitrais.userservice.models.Role;
-import com.mitrais.userservice.models.User;
-import com.mitrais.userservice.models.dto.UserDto;
-import com.mitrais.userservice.repositories.MessageRepository;
-import com.mitrais.userservice.repositories.RoleRepository;
-import com.mitrais.userservice.repositories.UserRepository;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,11 +15,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.mitrais.userservice.exceptions.model.UserNotFoundException;
+import com.mitrais.userservice.models.Role;
+import com.mitrais.userservice.models.User;
+import com.mitrais.userservice.models.dto.UserDto;
+import com.mitrais.userservice.repositories.MessageRepository;
+import com.mitrais.userservice.repositories.RoleRepository;
+import com.mitrais.userservice.repositories.UserRepository;
 
+/**
+ * Provide implementation of functionality to manipulate User data.
+ *
+ * @author Rai Suardhyana Arijasa on 9/3/2019.
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -34,12 +40,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    private MessageRepository messageRepository;
+
     @Override
     public UserDto findUserByEmail(String email) {
         UserDto userDto = new UserDto();
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
+            throw new UserNotFoundException(String.format(messageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
         }
         BeanUtils.copyProperties(user, userDto, "roles", "password");
         Set<String> roles = new HashSet<>();
@@ -51,19 +60,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUser(UserDto userDto) {
-        User user = new User();
-        BeanUtils.copyProperties(userDto, user, "enabled", "roles");
+    public void saveUser(User user) {
         boolean isEnabled = false;
         if (user.getId() == null || user.getId().isEmpty()) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         } else {
-            isEnabled = userDto.getEnabled();
+            isEnabled = user.isEnabled();
         }
         user.setEnabled(isEnabled);
         Set<Role> roles = new HashSet<>();
-        for (String role : userDto.getRoles()) {
-            roles.add(roleRepository.findByRole(role));
+        for (Role role : user.getRoles()) {
+            roles.add(roleRepository.findByRole(role.getRole()));
         }
         user.setRoles(roles);
         userRepository.save(user);
@@ -73,7 +80,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUserByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
+            throw new UserNotFoundException(String.format(messageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
         }
         userRepository.delete(user);
     }
@@ -87,39 +94,39 @@ public class UserServiceImpl implements UserService {
     public void changeUserPassword(String email, String passwordNew, String passwordOld) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UserNotFoundException(MessageRepository.USER_NOT_FOUND);
+            throw new UserNotFoundException(messageRepository.USER_NOT_FOUND);
         }
         if (!isOldPasswordValid(user.getPassword(), passwordOld)) {
-            throw new BadCredentialsException(MessageRepository.INVALID_OLD_PASSWORD);
+            throw new BadCredentialsException(messageRepository.INVALID_OLD_PASSWORD);
         }
         user.setPassword(bCryptPasswordEncoder.encode(passwordNew));
         userRepository.save(user);
     }
 
     @Override
-    public void updateUser(UserDto userDto) {
-        User user = userRepository.findByEmail(userDto.getEmail());
-        if (user == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, userDto.getEmail()));
+    public void updateUser(User user) {
+        User userDb = userRepository.findByEmail(user.getEmail());
+        if (userDb == null) {
+            throw new UserNotFoundException(String.format(messageRepository.USER_WITH_EMAIL_NOT_FOUND, user.getEmail()));
         }
-        user.setEmail(userDto.getEmail());
-        user.setFullname(userDto.getFullname());
+        userDb.setEmail(user.getEmail());
+        userDb.setFullname(user.getFullname());
         Set<Role> roles = new HashSet<>();
-        for (String role : userDto.getRoles()) {
-            roles.add(roleRepository.findByRole(role));
+        for (Role role : user.getRoles()) {
+            roles.add(roleRepository.findByRole(role.getRole()));
         }
-        user.setRoles(roles);
-        userRepository.save(user);
+        userDb.setRoles(roles);
+        userRepository.save(userDb);
     }
 
     @Override
-    public void enableUser(UserDto userDto) {
-        User userExists = userRepository.findByEmail(userDto.getEmail());
-        if (userExists == null) {
-            throw new UserNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, userDto.getEmail()));
+    public void enableUser(User user) {
+        User userDb = userRepository.findByEmail(user.getEmail());
+        if (userDb == null) {
+            throw new UserNotFoundException(String.format(messageRepository.USER_WITH_EMAIL_NOT_FOUND, user.getEmail()));
         }
-        userExists.setEnabled(userDto.getEnabled());
-        userRepository.save(userExists);
+        userDb.setEnabled(user.isEnabled());
+        userRepository.save(userDb);
     }
 
     @Override
@@ -129,7 +136,7 @@ public class UserServiceImpl implements UserService {
             List<GrantedAuthority> authorities = getUserAuthority(user.getRoles());
             return buildUserForAuthentication(user, authorities);
         } else {
-            throw new UsernameNotFoundException(String.format(MessageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
+            throw new UsernameNotFoundException(String.format(messageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
         }
     }
 

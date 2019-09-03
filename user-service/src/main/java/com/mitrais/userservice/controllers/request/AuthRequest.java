@@ -1,12 +1,17 @@
 package com.mitrais.userservice.controllers.request;
 
-import lombok.Data;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
+import lombok.Data;
+
+/**
+ * Provide Java object as Authentication request.
+ *
+ * @author Rai Suardhyana Arijasa on 9/3/2019.
+ */
 @Data
-public class AuthBody {
+public class AuthRequest {
     @Email(message = "{email.invalid}")
     private String email;
     @NotEmpty(message = "{password.notEmpty}")

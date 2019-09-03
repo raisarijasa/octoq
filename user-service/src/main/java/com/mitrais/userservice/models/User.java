@@ -1,5 +1,7 @@
 package com.mitrais.userservice.models;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +12,11 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Set;
-
+/**
+ * Provide Java object as User table.
+ *
+ * @author Rai Suardhyana Arijasa on 9/3/2019.
+ */
 @Data
 @Builder
 @NoArgsConstructor

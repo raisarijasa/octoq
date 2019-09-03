@@ -1,12 +1,17 @@
 package com.mitrais.userservice.models.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
+/**
+ * Provide generic response.
+ *
+ * @author Rai Suardhyana Arijasa on 9/3/2019.
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -1,9 +1,10 @@
 package com.mitrais.userservice.configs;
 
-import com.mitrais.userservice.models.Role;
-import com.mitrais.userservice.models.User;
-import com.mitrais.userservice.models.dto.UserDto;
-import com.mitrais.userservice.services.UserServiceImpl;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Base64;
+import java.util.Date;
+
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,13 +13,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import com.mitrais.userservice.models.dto.UserDto;
+import com.mitrais.userservice.services.UserServiceImpl;
 
+/**
+ * Provide JWT Token provider.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
+ */
 @Component
 public class JwtTokenProvider {
     private static final String HEADER = "Authorization";
@@ -38,6 +40,12 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    /**
+     * Provide token creation based on User data.
+     *
+     * @param user data
+     * @return token string
+     */
     public String createToken(UserDto user) {
         Claims claims = Jwts.claims();
         claims.put("email", user.getEmail());
@@ -53,15 +61,33 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * Provide Authentication by user token.
+     *
+     * @param token string
+     * @return Authentication
+     */
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
+    /**
+     * Provide Username based on user token.
+     *
+     * @param token string
+     * @return username
+     */
     public String getUsername(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("email").toString();
     }
 
+    /**
+     * Provide token resolver to remove bearer from token.
+     *
+     * @param req HttpServletRequest
+     * @return user token without bearer
+     */
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader(HEADER);
         if (bearerToken != null && bearerToken.startsWith(BEARER + " ")) {
@@ -70,6 +96,12 @@ public class JwtTokenProvider {
         return null;
     }
 
+    /**
+     * Provide token validation.
+     *
+     * @param token string
+     * @return true/false
+     */
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);

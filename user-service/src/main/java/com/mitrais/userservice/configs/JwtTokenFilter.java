@@ -1,9 +1,5 @@
 package com.mitrais.userservice.configs;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -11,6 +7,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.GenericFilterBean;
+
+/**
+ * Provide JWT Token Filter.
+ *
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
+ */
 public class JwtTokenFilter extends GenericFilterBean {
 
     private JwtTokenProvider jwtTokenProvider;
@@ -19,6 +24,15 @@ public class JwtTokenFilter extends GenericFilterBean {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * Provide functionality to perform filter.
+     *
+     * @param req         ServletRequest
+     * @param res         ServletResponse
+     * @param filterChain FilterChain
+     * @throws IOException      error
+     * @throws ServletException error
+     */
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
             throws IOException, ServletException {
