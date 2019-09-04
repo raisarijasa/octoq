@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mitrais.userservice.configs.JwtTokenProvider;
 import com.mitrais.userservice.controllers.request.AuthRequest;
-import com.mitrais.userservice.exceptions.model.ServiceException;
 import com.mitrais.userservice.models.dto.AuthDto;
 import com.mitrais.userservice.models.dto.UserDto;
 import com.mitrais.userservice.repositories.MessageRepository;
@@ -59,19 +58,31 @@ public class AuthController extends BaseController<AuthDto> {
     public ResponseEntity login(@Valid @RequestBody AuthRequest data) {
         String email = data.getEmail();
         UserDto user = userService.findUserByEmail(email);
-        if (!user.getEnabled()) {
-            throw new ServiceException(messageRepository.USER_NOT_ACTIVE);
-        }
+        if (!user.getEnabled()) userNotActiveResponse();
+
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, data.getPassword()));
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException(messageRepository.AUTH_FAIL);
+            return authFailedResponse();
         }
 
         List<AuthDto> authData = new ArrayList<>();
-        String token = jwtTokenProvider.createToken(user);
-        authData.add(new AuthDto(email, token));
+        authData.add(new AuthDto(email, jwtTokenProvider.createToken(user)));
         log.info("AuthController login ", authData);
-        return ok(getResponse(false, messageRepository.AUTH_SUCCESS_CODE, messageRepository.AUTH_SUCCESS, authData));
+        return ok(getResponse(messageRepository.AUTH_SUCCESS_CODE, messageRepository.AUTH_SUCCESS, authData));
+    }
+
+    private ResponseEntity userNotActiveResponse() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(getResponse(
+                messageRepository.AUTH_FAIL_CODE,
+                messageRepository.AUTH_FAIL
+        ));
+    }
+
+    private ResponseEntity authFailedResponse() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getResponse(
+                messageRepository.USER_NOT_ACTIVE_CODE,
+                messageRepository.USER_NOT_ACTIVE
+        ));
     }
 }

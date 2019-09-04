@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Response<T> {
-    private boolean error;
     private String code;
     private String message;
     private List<T> data;

@@ -77,4 +77,12 @@ public class MessageRepository {
     @Value("${password.change.success.message}")
     public String CHANGE_PASSWORD_SUCCESS;
     public String CHANGE_PASSWORD_SUCCESS_CODE = "00210";
+
+    @Value("${role.invalid.message}")
+    public String ROLE_INVALID;
+    public String ROLE_INVALID_CODE = "00211";
+
+    @Value("${email.empty.message}")
+    public String EMAIL_EMPTY;
+    public String EMAIL_EMPTY_CODE;
 }
