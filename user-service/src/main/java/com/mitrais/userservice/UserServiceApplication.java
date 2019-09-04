@@ -3,13 +3,14 @@ package com.mitrais.userservice;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 import com.mitrais.userservice.models.Authority;
 import com.mitrais.userservice.models.Role;
 import com.mitrais.userservice.repositories.RoleRepository;
 
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 @SpringBootApplication
 public class UserServiceApplication {
 
