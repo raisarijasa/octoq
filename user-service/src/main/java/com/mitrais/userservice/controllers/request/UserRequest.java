@@ -2,6 +2,7 @@ package com.mitrais.userservice.controllers.request;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 import lombok.Builder;
@@ -24,7 +25,6 @@ public class UserRequest {
     private String fullname;
     @NotEmpty(message = "{password.notEmpty}", groups = {GroupRequest.Create.class})
     private String password;
-    @NotEmpty(message = "{status.notEmpty}", groups = {GroupRequest.Update.class})
     private boolean enabled;
     @NotEmpty(message = "{roles.notEmpty}", groups = {GroupRequest.Create.class, GroupRequest.Update.class})
     private Set<String> roles;

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -69,12 +70,10 @@ public class UserController extends BaseController<UserDto> {
         try {
             userService.saveUser(user);
         } catch (DuplicateKeyException e) {
-            throw new DuplicateDataException("User with email " + request.getEmail() + " already exist.");
-        } catch (NullPointerException e) {
-            throw new ServiceException("error");
-        } catch (Exception e) {
-            throw new ServiceException("Something went wrong. Please contact administrator.");
+//            throw new DuplicateDataException("User with email " + request.getEmail() + " already exist.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User with email " + request.getEmail() + " already exist.");
         }
+
         return ok(getResponse(
                 false,
                 messageRepository.USER_REG_SUCCESS_CODE,
@@ -89,7 +88,7 @@ public class UserController extends BaseController<UserDto> {
      * @param request user data
      * @return response entity
      */
-    @PutMapping("/")
+    @PutMapping()
     public ResponseEntity updateUser(@Validated(GroupRequest.Update.class) @RequestBody UserRequest request, Principal principal) {
         User user = new User();
         BeanUtils.copyProperties(request, user, "roles");
