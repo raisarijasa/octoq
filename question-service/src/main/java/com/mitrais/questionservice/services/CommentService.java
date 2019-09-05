@@ -10,7 +10,7 @@ import com.mitrais.questionservice.models.Comment;
 public interface CommentService extends BaseService<Comment> {
 
     /**
-     * get comment by id
+     * Provide functionality to retrieve comment by id.
      *
      * @param commentId id of comment
      * @return comment object
@@ -18,21 +18,21 @@ public interface CommentService extends BaseService<Comment> {
     Comment getCommentById(Long commentId);
 
     /**
-     * create comment
+     * Provide functionality to create a new comment.
      *
      * @param body type Comment
      */
     void createComment(Comment body, Long postId);
 
     /**
-     * update comment
+     * Provide functionality to update comment.
      *
      * @param body Comment
      */
     void updateComment(Comment body);
 
     /**
-     * Delete comment by id
+     * Provide functionality to delete comment by id.
      *
      * @param commentId id of comment
      */

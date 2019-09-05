@@ -6,16 +6,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.mitrais.questionservice.exceptions.model.DataNotFoundException;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
 import com.mitrais.questionservice.models.Post;
 import com.mitrais.questionservice.models.Status;
 import com.mitrais.questionservice.models.Type;
+import com.mitrais.questionservice.repositories.MessageRepository;
 import com.mitrais.questionservice.repositories.PostRepository;
 
 /**
@@ -25,11 +23,13 @@ import com.mitrais.questionservice.repositories.PostRepository;
  */
 @Service
 public class PostServiceImpl implements PostService {
-    private PostRepository postRepo;
+    private final PostRepository postRepo;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public PostServiceImpl(PostRepository postRepo) {
+    public PostServiceImpl(PostRepository postRepo, MessageRepository messageRepository) {
         this.postRepo = postRepo;
+        this.messageRepository = messageRepository;
     }
 
     /**
@@ -81,7 +81,7 @@ public class PostServiceImpl implements PostService {
         if (optPost.isPresent()) {
             return optPost.get();
         } else {
-            throw new DataNotFoundException("Question not found");
+            throw new DataNotFoundException(messageRepository.QUESTION_NOT_FOUND);
         }
     }
 
@@ -106,11 +106,7 @@ public class PostServiceImpl implements PostService {
                 .setComments(null)
                 .setRates(null)
                 .setAnswers(null);
-        try {
-            postRepo.save(body);
-        } catch (DataIntegrityViolationException e) {
-            throw new ServiceException("Question with id " + body.getId() + " already exist.");
-        }
+        postRepo.save(body);
     }
 
     /**
@@ -126,7 +122,7 @@ public class PostServiceImpl implements PostService {
                     .setModifiedDate(new Date());
             postRepo.save(post);
         } else {
-            throw new DataNotFoundException("Question Not Found");
+            throw new DataNotFoundException(messageRepository.QUESTION_NOT_FOUND);
         }
     }
 
@@ -135,7 +131,11 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public void deleteQuestionById(Long id) {
-        deleteById(id);
+        try {
+            deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new DataNotFoundException(messageRepository.QUESTION_NOT_FOUND);
+        }
     }
 
     /**
@@ -148,7 +148,7 @@ public class PostServiceImpl implements PostService {
             optPost.get().setStatus(status);
             save(optPost.get());
         } else {
-            throw new DataNotFoundException("Question Not Found");
+            throw new DataNotFoundException(messageRepository.QUESTION_NOT_FOUND);
         }
     }
 
@@ -161,7 +161,7 @@ public class PostServiceImpl implements PostService {
         if (optQuestion.isPresent()) {
             return optQuestion.get();
         } else {
-            throw new DataNotFoundException("Answer Not Found");
+            throw new DataNotFoundException(messageRepository.ANSWER_NOT_FOUND);
         }
     }
 
@@ -182,7 +182,7 @@ public class PostServiceImpl implements PostService {
                     question.setAnswers(answers);
                     save(body);
                     return question;
-                }).orElseThrow(() -> new DataNotFoundException("Question not found"));
+                }).orElseThrow(() -> new DataNotFoundException(messageRepository.QUESTION_NOT_FOUND));
     }
 
     /**
@@ -196,7 +196,7 @@ public class PostServiceImpl implements PostService {
                             .setModifiedDate(new Date());
                     save(answer);
                     return answer;
-                }).orElseThrow(() -> new DataNotFoundException("Answer not found!"));
+                }).orElseThrow(() -> new DataNotFoundException(messageRepository.ANSWER_NOT_FOUND));
     }
 
     /**
@@ -204,11 +204,10 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public void deleteAnswer(Long answerId) {
-        Optional<Post> optAnswer = findById(answerId);
-        if (optAnswer.isPresent() && optAnswer.get().getType() == Type.ANSWER) {
+        try {
             deleteById(answerId);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Answer Not Found");
+        } catch (EmptyResultDataAccessException e) {
+            throw new DataNotFoundException(messageRepository.ANSWER_NOT_FOUND);
         }
     }
 }

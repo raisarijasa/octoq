@@ -5,12 +5,13 @@ import java.util.ArrayList;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.mitrais.questionservice.controllers.requests.RateRequest;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
 import com.mitrais.questionservice.models.Rate;
+import com.mitrais.questionservice.repositories.MessageRepository;
 import com.mitrais.questionservice.services.RateService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -23,20 +24,17 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/rates")
 public class RateController extends BaseController<Rate> {
-    private RateService rateService;
+    private final RateService rateService;
+    private final MessageRepository messageRepository;
 
-    /**
-     * Rate Controller Constructor
-     *
-     * @param rateService service of rate
-     */
     @Autowired
-    public RateController(RateService rateService) {
+    public RateController(RateService rateService, MessageRepository messageRepository) {
         this.rateService = rateService;
+        this.messageRepository = messageRepository;
     }
 
     /**
-     * Create rate
+     * Provide functionality to create and update rate for a question.
      *
      * @param request type Rate
      * @return response entity object
@@ -46,16 +44,11 @@ public class RateController extends BaseController<Rate> {
         Rate rate = new Rate();
         BeanUtils.copyProperties(request, rate);
         rateService.createRate(rate, request.getPostId());
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new rate has been created successfully",
-                new ArrayList<>()
-        ));
+        return createRateResponse();
     }
 
     /**
-     * delete rate
+     * Provide functionality to delete rate.
      *
      * @param userId of the rate
      * @return response entity
@@ -63,14 +56,32 @@ public class RateController extends BaseController<Rate> {
     @DeleteMapping("/{userId}")
     public ResponseEntity deleteRate(@PathVariable String userId) {
         if (userId == null || userId.equalsIgnoreCase("0")) {
-            throw new ServiceException("Rate ID should not be null or 0");
+            return idMandatoryResponse();
         }
         rateService.deleteRate(userId);
+        return deleteRateResponse();
+    }
+
+    private ResponseEntity createRateResponse() {
         return ok(getResponse(
-                false,
-                "00004",
-                "Rate has been deleted successfully",
+                messageRepository.CREATE_RATE_SUCCESS_CODE,
+                messageRepository.CREATE_RATE_SUCCESS,
                 new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity deleteRateResponse() {
+        return ok(getResponse(
+                messageRepository.DELETE_RATE_SUCCESS_CODE,
+                messageRepository.DELETE_RATE_SUCCESS,
+                new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity idMandatoryResponse() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getResponse(
+                messageRepository.RATE_ID_MANDATORY_CODE,
+                messageRepository.RATE_ID_MANDATORY
         ));
     }
 }

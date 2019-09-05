@@ -9,12 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.mitrais.questionservice.controllers.requests.GroupRequest;
 import com.mitrais.questionservice.controllers.requests.QuestionRequest;
 import com.mitrais.questionservice.controllers.requests.StatusRequest;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
 import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.repositories.MessageRepository;
 import com.mitrais.questionservice.services.PostService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -27,20 +27,17 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/questions")
 public class QuestionController extends BaseController<Post> {
-    private PostService postService;
+    private final PostService postService;
+    private final MessageRepository messageRepository;
 
-    /**
-     * Question controller constructor
-     *
-     * @param postService service of question
-     */
     @Autowired
-    public QuestionController(PostService postService) {
+    public QuestionController(PostService postService, MessageRepository messageRepository) {
         this.postService = postService;
+        this.messageRepository = messageRepository;
     }
 
     /**
-     * get question by Id
+     * Provide functionality to retrieve question by id.
      *
      * @param id id of the question
      * @return response entity object
@@ -48,75 +45,55 @@ public class QuestionController extends BaseController<Post> {
     @GetMapping("/{id}")
     public ResponseEntity getQuestionById(@PathVariable Long id) {
         if (id == null || id == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Question ID should not be null or 0");
+            return idMandatoryResponse();
         }
 
         List<Post> questions = new ArrayList<>();
         questions.add(postService.getQuestionById(id));
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                questions
-        ));
+        return getQuestionResponse(questions);
     }
 
     /**
-     * retrieve questions
+     * Provide functionality to retrieve questions.
      *
      * @return response entity object
      */
     @GetMapping("/")
     public ResponseEntity getQuestions() {
         List<Post> questions = postService.getQuestions();
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                questions
-        ));
+        return getQuestionResponse(questions);
     }
 
     /**
-     * create question
+     * Provide functionality to create a new question.
      *
-     * @param request type QuestionDto
+     * @param request type QuestionRequest
      * @return response entity object
      */
     @PostMapping("/")
-    public ResponseEntity createQuestion(@Validated(QuestionRequest.CreateGroup.class) @RequestBody QuestionRequest request) {
+    public ResponseEntity createQuestion(@Validated(GroupRequest.Create.class) @RequestBody QuestionRequest request) {
         Post data = new Post();
         BeanUtils.copyProperties(request, data);
         postService.createQuestion(data);
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new question has been created successfully",
-                new ArrayList<>()
-        ));
+        return createQuestionResponse();
     }
 
     /**
-     * update question
+     * Provide functionality to update question.
      *
-     * @param request type QuestionDto
+     * @param request type QuestionRequest
      * @return response entity object
      */
     @PutMapping("/")
-    public ResponseEntity updateQuestion(@Validated(QuestionRequest.UpdateGroup.class) @RequestBody QuestionRequest request) {
+    public ResponseEntity updateQuestion(@Validated(GroupRequest.Update.class) @RequestBody QuestionRequest request) {
         Post data = new Post();
         BeanUtils.copyProperties(request, data);
         postService.updateQuestion(data);
-        return ok(getResponse(
-                false,
-                "00002",
-                "The question has been updated successfully",
-                new ArrayList<>()
-        ));
+        return updateQuestionResponse();
     }
 
     /**
-     * delete question by id
+     * Provide functionality to delete question by id.
      *
      * @param id of question
      * @return response entity object
@@ -124,20 +101,15 @@ public class QuestionController extends BaseController<Post> {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteQuestionById(@PathVariable Long id) {
         if (id == null || id == 0) {
-            throw new ServiceException("Question ID should not be null or 0");
+            return idMandatoryResponse();
         }
         postService.deleteQuestionById(id);
 
-        return ok(getResponse(
-                false,
-                "00004",
-                "Question has been deleted successfully",
-                new ArrayList<>()
-        ));
+        return deleteQuestionResponse();
     }
 
     /**
-     * change question status
+     * Provide functionality to change question status.
      *
      * @param request StatusRequest Object
      * @return response entity object
@@ -145,11 +117,45 @@ public class QuestionController extends BaseController<Post> {
     @PostMapping("/change_status")
     public ResponseEntity changeStatus(@RequestBody StatusRequest request) {
         postService.changeStatus(request.getId(), request.getStatus());
+        return updateQuestionResponse();
+    }
+
+    private ResponseEntity getQuestionResponse(List<Post> answers) {
         return ok(getResponse(
-                false,
-                "00002",
-                "The question has been updated successfully",
+                messageRepository.RETRIEVE_QUESTION_SUCCESS_CODE,
+                messageRepository.RETRIEVE_QUESTION_SUCCESS,
+                answers
+        ));
+    }
+
+    private ResponseEntity createQuestionResponse() {
+        return ok(getResponse(
+                messageRepository.CREATE_QUESTION_SUCCESS_CODE,
+                messageRepository.CREATE_QUESTION_SUCCESS,
                 new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity updateQuestionResponse() {
+        return ok(getResponse(
+                messageRepository.UPDATE_QUESTION_SUCCESS_CODE,
+                messageRepository.UPDATE_QUESTION_SUCCESS,
+                new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity deleteQuestionResponse() {
+        return ok(getResponse(
+                messageRepository.DELETE_QUESTION_SUCCESS_CODE,
+                messageRepository.DELETE_QUESTION_SUCCESS,
+                new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity idMandatoryResponse() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getResponse(
+                messageRepository.QUESTION_ID_MANDATORY_CODE,
+                messageRepository.QUESTION_ID_MANDATORY
         ));
     }
 }

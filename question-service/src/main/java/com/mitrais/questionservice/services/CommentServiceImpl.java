@@ -6,12 +6,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.mitrais.questionservice.exceptions.model.DataNotFoundException;
 import com.mitrais.questionservice.models.Comment;
 import com.mitrais.questionservice.models.Status;
 import com.mitrais.questionservice.repositories.CommentRepository;
+import com.mitrais.questionservice.repositories.MessageRepository;
 import com.mitrais.questionservice.repositories.PostRepository;
 
 /**
@@ -21,13 +23,15 @@ import com.mitrais.questionservice.repositories.PostRepository;
  */
 @Service
 public class CommentServiceImpl implements CommentService {
-    private CommentRepository commentRepo;
-    private PostRepository postRepo;
+    private final CommentRepository commentRepo;
+    private final PostRepository postRepo;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepo, PostRepository postRepo) {
+    public CommentServiceImpl(CommentRepository commentRepo, PostRepository postRepo, MessageRepository messageRepository) {
         this.commentRepo = commentRepo;
         this.postRepo = postRepo;
+        this.messageRepository = messageRepository;
     }
 
     @Override
@@ -61,7 +65,7 @@ public class CommentServiceImpl implements CommentService {
         if (optComment.isPresent()) {
             return optComment.get();
         } else {
-            throw new DataNotFoundException("Comment not found!");
+            throw new DataNotFoundException(messageRepository.COMMENT_NOT_FOUND);
         }
     }
 
@@ -78,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
                     question.setComments(comments);
                     save(body);
                     return question;
-                }).orElseThrow(() -> new DataNotFoundException("Question not found"));
+                }).orElseThrow(() -> new DataNotFoundException(messageRepository.DATA_NOT_FOUND));
     }
 
     @Override
@@ -89,16 +93,15 @@ public class CommentServiceImpl implements CommentService {
                     comment.setModifiedDate(new Date());
                     save(comment);
                     return comment;
-                }).orElseThrow(() -> new DataNotFoundException("Comment not found!"));
+                }).orElseThrow(() -> new DataNotFoundException(messageRepository.COMMENT_NOT_FOUND));
     }
 
     @Override
     public void deleteComment(Long commentId) {
-        Optional<Comment> optComment = findById(commentId);
-        if (optComment.isPresent()) {
+        try {
             deleteById(commentId);
-        } else {
-            throw new DataNotFoundException("Comment Not Found");
+        } catch (EmptyResultDataAccessException e) {
+            throw new DataNotFoundException(messageRepository.COMMENT_NOT_FOUND);
         }
     }
 }

@@ -1,9 +1,10 @@
 package com.mitrais.questionservice.repositories;
 
-import com.mitrais.questionservice.models.Post;
-import com.mitrais.questionservice.models.Rate;
-import com.mitrais.questionservice.models.Status;
-import com.mitrais.questionservice.models.Type;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.models.Rate;
+import com.mitrais.questionservice.models.Status;
+import com.mitrais.questionservice.models.Type;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
@@ -36,7 +37,9 @@ public class RateRepositoryTest {
                 .setUserId("1")
                 .setRating(1);
         samplePost = new Post()
+                .setUserId("1")
                 .setTitle("Title 1")
+                .setDescription("Description 1")
                 .setType(Type.QUESTION)
                 .setStatus(Status.APPROVED)
                 .setAnswers(new HashSet<>())

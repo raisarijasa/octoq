@@ -9,11 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.mitrais.questionservice.controllers.requests.AnswerRequest;
-import com.mitrais.questionservice.exceptions.model.ServiceException;
+import com.mitrais.questionservice.controllers.requests.GroupRequest;
 import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.repositories.MessageRepository;
 import com.mitrais.questionservice.services.PostService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -26,20 +26,17 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/answers")
 public class AnswerController extends BaseController<Post> {
-    private PostService postService;
+    private final PostService postService;
+    private final MessageRepository messageRepository;
 
-    /**
-     * Answer Controller Constructor
-     *
-     * @param postService answer service
-     */
     @Autowired
-    public AnswerController(PostService postService) {
+    public AnswerController(PostService postService, MessageRepository messageRepository) {
         this.postService = postService;
+        this.messageRepository = messageRepository;
     }
 
     /**
-     * Retrieve Answer by Answer Id
+     * Provide functionality to retrieve answer by id.
      *
      * @param answerId type Long
      * @return response entity object
@@ -47,61 +44,46 @@ public class AnswerController extends BaseController<Post> {
     @GetMapping("/{answerId}")
     public ResponseEntity getAnswerById(@PathVariable Long answerId) {
         if (answerId == null || answerId == 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Request");
+            return idMandatoryResponse();
         }
         List<Post> answers = new ArrayList<>();
         answers.add(postService.getAnswerById(answerId));
-        return ok(getResponse(
-                false,
-                "00003",
-                "Retrieve data success",
-                answers
-        ));
+        return getAnswerByIdResponse(answers);
     }
 
     /**
-     * create answer
+     * Provide functionality to create new answer.
      *
      * @param request type AnswerRequest
      * @return response entity object
      */
     @PostMapping("/{questionId}")
-    public ResponseEntity createAnswer(@Validated(AnswerRequest.CreateGroup.class) @RequestBody AnswerRequest request) {
+    public ResponseEntity createAnswer(@Validated(GroupRequest.Create.class) @RequestBody AnswerRequest request) {
         Post post = new Post();
         BeanUtils.copyProperties(request, post);
         postService.createAnswer(post, request.getQuestionId());
-        return ok(getResponse(
-                false,
-                "00001",
-                "A new answer has been created successfully",
-                new ArrayList<>()
-        ));
+        return createAnswerResponse();
     }
 
     /**
-     * update answer
+     * Provide functionality to update answer.
      *
-     * @param request type AnswerDto
+     * @param request type AnswerRequest
      * @return response entity object
      */
     @PutMapping("/")
-    public ResponseEntity updateAnswer(@Validated(AnswerRequest.UpdateGroup.class) @RequestBody AnswerRequest request) {
+    public ResponseEntity updateAnswer(@Validated(GroupRequest.Update.class) @RequestBody AnswerRequest request) {
         if (request.getId() == null || request.getId() == 0) {
-            throw new ServiceException("Question ID should not be null or 0");
+            return idMandatoryResponse();
         }
         Post post = new Post();
         BeanUtils.copyProperties(request, post);
         postService.updateAnswer(post);
-        return ok(getResponse(
-                false,
-                "00002",
-                "The answer has been updated successfully",
-                new ArrayList<>()
-        ));
+        return updateAnswerResponse();
     }
 
     /**
-     * Delete answer
+     * Provide functionality to delete answer.
      *
      * @param answerId type Long
      * @return response entity object
@@ -109,11 +91,45 @@ public class AnswerController extends BaseController<Post> {
     @DeleteMapping("/{answerId}")
     public ResponseEntity deleteAnswer(@PathVariable Long answerId) {
         postService.deleteAnswer(answerId);
+        return deleteAnswerResponse();
+    }
+
+    private ResponseEntity getAnswerByIdResponse(List<Post> answers) {
         return ok(getResponse(
-                false,
-                "00004",
-                "Answer has been deleted successfully",
+                messageRepository.RETRIEVE_ANSWER_SUCCESS_CODE,
+                messageRepository.RETRIEVE_ANSWER_SUCCESS,
+                answers
+        ));
+    }
+
+    private ResponseEntity createAnswerResponse() {
+        return ok(getResponse(
+                messageRepository.CREATE_ANSWER_SUCCESS_CODE,
+                messageRepository.CREATE_ANSWER_SUCCESS,
                 new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity updateAnswerResponse() {
+        return ok(getResponse(
+                messageRepository.UPDATE_ANSWER_SUCCESS_CODE,
+                messageRepository.UPDATE_ANSWER_SUCCESS,
+                new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity deleteAnswerResponse() {
+        return ok(getResponse(
+                messageRepository.DELETE_ANSWER_SUCCESS_CODE,
+                messageRepository.DELETE_ANSWER_SUCCESS,
+                new ArrayList<>()
+        ));
+    }
+
+    private ResponseEntity idMandatoryResponse() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getResponse(
+                messageRepository.ANSWER_ID_MANDATORY_CODE,
+                messageRepository.ANSWER_ID_MANDATORY
         ));
     }
 }

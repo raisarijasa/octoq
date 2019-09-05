@@ -16,5 +16,6 @@ import com.mitrais.questionservice.models.Type;
  */
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByTypeAndStatus(Type type, Status status);
+
     List<PostDto> findByType(Type type);
 }

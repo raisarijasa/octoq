@@ -1,9 +1,10 @@
 package com.mitrais.questionservice.repositories;
 
-import com.mitrais.questionservice.dto.PostDto;
-import com.mitrais.questionservice.models.Post;
-import com.mitrais.questionservice.models.Status;
-import com.mitrais.questionservice.models.Type;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import com.mitrais.questionservice.dto.PostDto;
+import com.mitrais.questionservice.models.Post;
+import com.mitrais.questionservice.models.Status;
+import com.mitrais.questionservice.models.Type;
 
 import static org.hamcrest.Matchers.is;
 
@@ -33,6 +34,8 @@ public class PostRepositoryTest {
     public void init() {
         sampleData = new Post()
                 .setTitle("Title 1")
+                .setDescription("Description 1")
+                .setUserId("1")
                 .setType(Type.QUESTION)
                 .setStatus(Status.APPROVED)
                 .setAnswers(new HashSet<>())
@@ -40,6 +43,8 @@ public class PostRepositoryTest {
                 .setRates(new HashSet<>());
         sampleDataBlocked = new Post()
                 .setTitle("Title 1")
+                .setDescription("Description 1")
+                .setUserId("1")
                 .setType(Type.QUESTION)
                 .setStatus(Status.BLOCKED)
                 .setAnswers(new HashSet<>())
@@ -48,6 +53,8 @@ public class PostRepositoryTest {
         sampleAnswer = new Post()
                 .setTitle("Answer 1")
                 .setType(Type.ANSWER)
+                .setDescription("Answer 1")
+                .setUserId("1")
                 .setAnswers(new HashSet<>())
                 .setComments(new HashSet<>())
                 .setRates(new HashSet<>());
