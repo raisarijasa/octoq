@@ -3,6 +3,8 @@ server:
   port: 9090
 
 spring:
+  application:
+    name: gateway-service
   cloud:
     gateway:
 #      x-forwarded-for:
@@ -12,10 +14,14 @@ spring:
           lower-case-service-id: true
           enabled: true
       routes:
-      - id:question-service
+      - id: user-service
+        uri: lb://user-service
+        predicates:
+        - Path=/api/users/**,/api/auth/**
+      - id: question-service
         uri: lb://question-service
         predicates:
-        - Path=/question/**
+        - Path=/api/answers/**,/api/comments/**,/api/questions/**,/api/rates/**
 #        filters:
 #        - PreserveHostHeader
 # EUREKA DISCOVERY
@@ -26,7 +32,7 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://localhost:9091/eureka
+      defaultZone: http://localhost:8761/eureka
   instance:
     instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
     leaseRenewalIntervalInSeconds: 5
