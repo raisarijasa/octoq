@@ -14,19 +14,13 @@ import com.mitrais.questionservice.models.Status;
  */
 @Data
 public class CommentRequest {
-    @NotNull(message = "{id.NotEmpty}", groups = {UpdateGroup.class})
+    @NotNull(message = "{id.NotEmpty}", groups = {GroupRequest.Update.class})
     private Long id;
-    @NotNull(message = "{postId.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotNull(message = "{postId.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private Long postId;
-    @NotEmpty(message = "{userId.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{userId.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String userId;
-    @NotEmpty(message = "{description.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{description.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String description;
     private Status status;
-
-    public interface UpdateGroup {
-    }
-
-    public interface CreateGroup {
-    }
 }

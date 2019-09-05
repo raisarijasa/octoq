@@ -7,25 +7,36 @@ import com.mitrais.questionservice.dto.Response;
 /**
  * Provide Base Controller.
  *
- * @author Rai Suardhyana Arijasa on 9/2/2019.
  * @param <T> generic object
+ * @author Rai Suardhyana Arijasa on 9/2/2019.
  */
 public class BaseController<T> {
 
     /**
-     * Get Response
+     * Provide generic response.
      *
-     * @param error   error status
      * @param code    message code
      * @param message message
      * @param data    generic data
      * @return response with generic object
      */
-    Response<T> getResponse(boolean error, String code, String message, List<T> data) {
+    Response<T> getResponse(String code, String message, List<T> data) {
         return new Response<T>()
-                .setError(error)
                 .setCode(code)
                 .setMessage(message)
                 .setData(data);
+    }
+
+    /**
+     * Provide default response.
+     *
+     * @param code    message code
+     * @param message message
+     * @return response with generic object
+     */
+    Response getResponse(String code, String message) {
+        return new Response()
+                .setCode(code)
+                .setMessage(message);
     }
 }

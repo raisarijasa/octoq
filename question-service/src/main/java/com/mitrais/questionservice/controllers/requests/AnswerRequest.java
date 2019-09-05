@@ -12,18 +12,12 @@ import lombok.Data;
  */
 @Data
 public class AnswerRequest {
-    @NotNull(message = "{id.NotEmpty}", groups = {UpdateGroup.class})
+    @NotNull(message = "{id.NotEmpty}", groups = {GroupRequest.Update.class})
     private Long id;
-    @NotNull(message = "{questionId.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotNull(message = "{questionId.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private Long questionId;
-    @NotEmpty(message = "{userId.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{userId.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String userId;
-    @NotEmpty(message = "{description.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{description.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String description;
-
-    public interface UpdateGroup {
-    }
-
-    public interface CreateGroup {
-    }
 }

@@ -12,14 +12,14 @@ import java.util.Optional;
 public interface BaseService<T> {
 
     /**
-     * save data
+     * Provide functionality to save data.
      *
      * @param data generic object
      */
     void save(T data);
 
     /**
-     * find by id
+     * Provide functionality to find data by id.
      *
      * @param id id of data
      * @return return optional generic object type
@@ -27,21 +27,21 @@ public interface BaseService<T> {
     Optional<T> findById(Long id);
 
     /**
-     * delete data by id
+     * Provide functionality to delete data by id.
      *
      * @param id of data
      */
     void deleteById(Long id);
 
     /**
-     * find all data
+     * Provide functionality to get all data.
      *
      * @return list of generic object
      */
     List<T> findAll();
 
     /**
-     * validation is data exist by id
+     * Provide functionality to validate data exist.
      *
      * @param id id of data
      * @return boolean

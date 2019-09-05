@@ -6,7 +6,6 @@ import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
-import com.mitrais.questionservice.models.Post;
 import com.mitrais.questionservice.models.Status;
 
 /**
@@ -17,19 +16,13 @@ import com.mitrais.questionservice.models.Status;
 @Data
 @Builder
 public class QuestionRequest {
-    @NotNull(message = "{id.NotEmpty}", groups = {UpdateGroup.class})
+    @NotNull(message = "{id.NotEmpty}", groups = {GroupRequest.Update.class})
     private Long id;
-    @NotEmpty(message = "{userId.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{userId.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String userId;
-    @NotEmpty(message = "{title.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{title.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String title;
-    @NotEmpty(message = "{description.NotEmpty}", groups = {UpdateGroup.class, CreateGroup.class})
+    @NotEmpty(message = "{description.NotEmpty}", groups = {GroupRequest.Update.class, GroupRequest.Create.class})
     private String description;
     private Status status;
-
-    public interface UpdateGroup {
-    }
-
-    public interface CreateGroup {
-    }
 }

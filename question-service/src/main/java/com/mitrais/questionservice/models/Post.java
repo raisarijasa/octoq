@@ -26,7 +26,6 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     private Type type;
-    @Column(nullable = false)
     private String title;
     @Column(nullable = false)
     private String description;

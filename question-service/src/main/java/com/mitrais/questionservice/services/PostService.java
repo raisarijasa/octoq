@@ -13,7 +13,7 @@ import com.mitrais.questionservice.models.Status;
 public interface PostService extends BaseService<Post> {
 
     /**
-     * Get question by id
+     * Provide functionality to retrieve question by id.
      *
      * @param id of question
      * @return question
@@ -21,35 +21,35 @@ public interface PostService extends BaseService<Post> {
     Post getQuestionById(Long id);
 
     /**
-     * get questions
+     * Provide functionality to retrieve all question.
      *
      * @return list of question
      */
     List<Post> getQuestions();
 
     /**
-     * create new question
+     * Provide functionality to crate a new question.
      *
      * @param body type Post
      */
     void createQuestion(Post body);
 
     /**
-     * update question
+     * Provide functionality to update question.
      *
      * @param body Post
      */
     void updateQuestion(Post body);
 
     /**
-     * Delete question by id
+     * Provide functionality to delete question by id.
      *
      * @param id of question
      */
     void deleteQuestionById(Long id);
 
     /**
-     * change question status
+     * Provide functionality to change question status.
      *
      * @param id     QuestionId
      * @param status question status
@@ -57,7 +57,7 @@ public interface PostService extends BaseService<Post> {
     void changeStatus(Long id, Status status);
 
     /**
-     * get answer by id
+     * Provide functionality to retrieve answer by id.
      *
      * @param id of answer
      * @return Post object
@@ -65,21 +65,21 @@ public interface PostService extends BaseService<Post> {
     Post getAnswerById(Long id);
 
     /**
-     * create new answer
+     * Provide functionality to create a new answer.
      *
      * @param body Post
      */
     void createAnswer(Post body, Long questionId);
 
     /**
-     * update answer
+     * Provide functionality to update answer.
      *
      * @param body Post
      */
     void updateAnswer(Post body);
 
     /**
-     * delete answer by id
+     * Provide functionality to delete answer by id.
      *
      * @param answerId of answer
      */

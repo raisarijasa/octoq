@@ -5,10 +5,12 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.mitrais.questionservice.exceptions.model.DataNotFoundException;
 import com.mitrais.questionservice.models.Rate;
+import com.mitrais.questionservice.repositories.MessageRepository;
 import com.mitrais.questionservice.repositories.PostRepository;
 import com.mitrais.questionservice.repositories.RateRepository;
 
@@ -19,13 +21,15 @@ import com.mitrais.questionservice.repositories.RateRepository;
  */
 @Service
 public class RateServiceImpl implements RateService {
-    private RateRepository rateRepo;
-    private PostRepository postRepo;
+    private final RateRepository rateRepo;
+    private final PostRepository postRepo;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public RateServiceImpl(RateRepository rateRepo, PostRepository postRepo) {
+    public RateServiceImpl(RateRepository rateRepo, PostRepository postRepo, MessageRepository messageRepository) {
         this.rateRepo = rateRepo;
         this.postRepo = postRepo;
+        this.messageRepository = messageRepository;
     }
 
     @Override
@@ -53,16 +57,15 @@ public class RateServiceImpl implements RateService {
                     rates.add(body);
                     save(body);
                     return question;
-                }).orElseThrow(() -> new DataNotFoundException("Data not found"));
+                }).orElseThrow(() -> new DataNotFoundException(messageRepository.DATA_NOT_FOUND));
     }
 
     @Override
     public void deleteRate(String userId) {
-        Optional<Rate> optRate = findById(userId);
-        if (optRate.isPresent()) {
+        try {
             deleteById(userId);
-        } else {
-            throw new DataNotFoundException("Rate Not Found");
+        } catch (EmptyResultDataAccessException e) {
+            throw new DataNotFoundException(messageRepository.RATE_NOT_FOUND);
         }
     }
 }
