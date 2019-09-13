@@ -40,6 +40,7 @@
         <module>eureka-service</module>
         <module>question-service</module>
         <module>user-service</module>
+        <module>gateway-service</module>
     </modules>
 
     <properties>
