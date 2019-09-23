@@ -39,7 +39,7 @@ public class RateController extends BaseController<Rate> {
      * @param request type Rate
      * @return response entity object
      */
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity createRate(@Valid @RequestBody RateRequest request) {
         Rate rate = new Rate();
         BeanUtils.copyProperties(request, rate);

@@ -52,7 +52,7 @@ public class UserController extends BaseController<UserDto> {
      * @param request user data
      * @return response entity
      */
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity register(@Validated(GroupRequest.Create.class) @RequestBody UserRequest request) {
         User user = new User();
         BeanUtils.copyProperties(request, user, "roles", "enabled");
@@ -96,6 +96,16 @@ public class UserController extends BaseController<UserDto> {
         List<UserDto> data = new ArrayList<>();
         data.add(userService.findUserByEmail(email));
         return getUserByEmailResponse(data);
+    }
+
+    /**
+     * provide functionality to retrieve user data.
+     *
+     * @return response entity
+     */
+    @GetMapping()
+    public ResponseEntity getUsers() {
+        return getUserByEmailResponse(userService.findUsers());
     }
 
     /**
