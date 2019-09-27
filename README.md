@@ -4,10 +4,11 @@ Octoq is a question and answer site for Mitrais Staff. It features questions and
 
 ## Contents
 * [Requirement](#Requirement)
+* [Project%20Structure](#Project%20Structure)
 * [Design](#Design)
-* [Implementation and Testing](#Implementation%20and%20Testing)
+* [Implementation%20and%20Testing](#Implementation%20and%20Testing)
 * [Deployment](#Deployment)
-* [Built With](#Built%20With)
+* [Built%20With](#Built%20With)
 * [Authors](#Authors)
 * [License](#License)
 
@@ -40,7 +41,7 @@ Octoq is a question and answer site for Mitrais Staff. It features questions and
 #### Non Functionality
 - O-Auth 2
 
-## Project Structure
+## Project%20Structure
  - Eureka Service
  - Gateway Service
  - Octoq Website
@@ -67,7 +68,7 @@ UI Application
 └── App.vue
 ```
 
-## Implementation and Testing
+## Implementation%20and%20Testing
 Octoq is implemented using VueJs as the front end and Spring Boot as the backend. Backend is completed with unit test using JUnit. 
 
 ## Deployment
@@ -111,7 +112,7 @@ These tools is required to install to run the application
   ```
 
 
-## Built With
+## Built%20With
 * [Maven](https://maven.apache.org/) - Dependency Management
 
 ## Authors
