@@ -5,9 +5,9 @@ Octoq is a question and answer site for Mitrais Staff. It features questions and
 ## Contents
 * [Requirement](#Requirement)
 * [Design](#Design)
-* [Implementation and Testing](#Implementation and Testing)
+* [Implementation and Testing](#Implementation%20and%20Testing)
 * [Deployment](#Deployment)
-* [Built With](#Built With)
+* [Built With](#Built%20With)
 * [Authors](#Authors)
 * [License](#License)
 
