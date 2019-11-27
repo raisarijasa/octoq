@@ -57,7 +57,7 @@ public class CommentController extends BaseController<Comment> {
      * @param request type Comment
      * @return response entity object
      */
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity createComment(@Validated(GroupRequest.Create.class) @RequestBody CommentRequest request) {
         Comment comment = new Comment();
         BeanUtils.copyProperties(request, comment);

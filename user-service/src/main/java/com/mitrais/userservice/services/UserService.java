@@ -1,5 +1,7 @@
 package com.mitrais.userservice.services;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.mitrais.userservice.models.User;
@@ -19,6 +21,13 @@ public interface UserService extends UserDetailsService {
      * @return User Dto
      */
     UserDto findUserByEmail(String email);
+
+    /**
+     * Provide functionality to get all user data.
+     *
+     * @return user list
+     */
+    List<UserDto> findUsers();
 
     /**
      * provide functionality to save user data

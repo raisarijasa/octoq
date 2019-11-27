@@ -30,6 +30,9 @@ import com.mitrais.userservice.repositories.UserRepository;
  */
 @Service
 public class UserServiceImpl implements UserService {
+    private static final String ROLES = "roles";
+    private static final String ENABLED = "enabled";
+    private static final String PASSWORD = "password";
 
     @Autowired
     private UserRepository userRepository;
@@ -50,13 +53,36 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new UserNotFoundException(String.format(messageRepository.USER_WITH_EMAIL_NOT_FOUND, email));
         }
-        BeanUtils.copyProperties(user, userDto, "roles", "password");
+        BeanUtils.copyProperties(user, userDto, ROLES, PASSWORD);
         Set<String> roles = new HashSet<>();
         for (Role role : user.getRoles()) {
             roles.add(role.getRole());
         }
         userDto.setRoles(roles);
         return userDto;
+    }
+
+    @Override
+    public List<UserDto> findUsers() {
+        List<UserDto> users = new ArrayList<>();
+        UserDto userDto;
+        List<User> usersDb = userRepository.findAll();
+        for (User user : usersDb) {
+            userDto = new UserDto();
+            BeanUtils.copyProperties(user, userDto, ROLES, ENABLED);
+            if (user.isEnabled()) {
+                userDto.setEnabled(true);
+            } else {
+                userDto.setEnabled(false);
+            }
+            Set<String> roles = new HashSet<>();
+            for (Role role : user.getRoles()) {
+                roles.add(role.getRole());
+            }
+            userDto.setRoles(roles);
+            users.add(userDto);
+        }
+        return users;
     }
 
     @Override

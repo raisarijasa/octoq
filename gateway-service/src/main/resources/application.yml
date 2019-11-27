@@ -7,6 +7,14 @@ spring:
     name: gateway-service
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - "*"
+            allowed-headers:
+              - "*"
 #      x-forwarded-for:
 #        enabled: true
       discovery:

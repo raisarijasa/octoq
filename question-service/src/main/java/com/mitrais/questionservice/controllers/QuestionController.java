@@ -58,7 +58,7 @@ public class QuestionController extends BaseController<Post> {
      *
      * @return response entity object
      */
-    @GetMapping("/")
+    @GetMapping()
     public ResponseEntity getQuestions() {
         List<Post> questions = postService.getQuestions();
         return getQuestionResponse(questions);
@@ -70,7 +70,7 @@ public class QuestionController extends BaseController<Post> {
      * @param request type QuestionRequest
      * @return response entity object
      */
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity createQuestion(@Validated(GroupRequest.Create.class) @RequestBody QuestionRequest request) {
         Post data = new Post();
         BeanUtils.copyProperties(request, data);
@@ -84,7 +84,7 @@ public class QuestionController extends BaseController<Post> {
      * @param request type QuestionRequest
      * @return response entity object
      */
-    @PutMapping("/")
+    @PutMapping()
     public ResponseEntity updateQuestion(@Validated(GroupRequest.Update.class) @RequestBody QuestionRequest request) {
         Post data = new Post();
         BeanUtils.copyProperties(request, data);
